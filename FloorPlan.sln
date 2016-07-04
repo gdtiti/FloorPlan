@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2015
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FloorPlan.CSharp.Plugins", "FloorPlan.CSharp.Plugins.csproj", "{61047213-3DF6-C282-D3D2-796E050C6BF6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FloorPlan.CSharp", "FloorPlan.CSharp.csproj", "{F2E53EFB-1022-4CB2-FF57-E1FFE7FEA8B4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FloorPlan.CSharp.Editor", "FloorPlan.CSharp.Editor.csproj", "{AA9D5077-2835-1BBB-29CD-F07016D65E7B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{61047213-3DF6-C282-D3D2-796E050C6BF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{61047213-3DF6-C282-D3D2-796E050C6BF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{61047213-3DF6-C282-D3D2-796E050C6BF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{61047213-3DF6-C282-D3D2-796E050C6BF6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2E53EFB-1022-4CB2-FF57-E1FFE7FEA8B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2E53EFB-1022-4CB2-FF57-E1FFE7FEA8B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2E53EFB-1022-4CB2-FF57-E1FFE7FEA8B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2E53EFB-1022-4CB2-FF57-E1FFE7FEA8B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA9D5077-2835-1BBB-29CD-F07016D65E7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA9D5077-2835-1BBB-29CD-F07016D65E7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA9D5077-2835-1BBB-29CD-F07016D65E7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA9D5077-2835-1BBB-29CD-F07016D65E7B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

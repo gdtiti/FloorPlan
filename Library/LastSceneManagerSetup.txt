@@ -1,0 +1,4 @@
+sceneSetups:
+- path: Assets/FloorPlan/Scene/Main.unity
+  isLoaded: 1
+  isActive: 1
