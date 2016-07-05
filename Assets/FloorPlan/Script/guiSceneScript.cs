@@ -33,6 +33,8 @@ public class guiSceneScript : MonoBehaviour {
     public void OnLightButtonClick()
     {
         lightFlag = true;
+        furnitureFlag = false;
+        suggestion = false;
         FloorPlan.floorFlag = false;
     }
 
@@ -40,6 +42,7 @@ public class guiSceneScript : MonoBehaviour {
     {
         furnitureFlag = true;
         lightFlag = false;
+        suggestion = false;
         FloorPlan.floorFlag = false;
     }
 

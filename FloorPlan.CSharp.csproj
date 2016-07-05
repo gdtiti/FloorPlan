@@ -74,6 +74,7 @@
     <Compile Include="Assets\FloorPlan\Script\line.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\FloorPlan\RoomData.txt" />
     <None Include="Assets\Standard Assets\Characters\FirstPersonCharacter\FirstPersonCharacterGuidelines.txt" />
     <None Include="Assets\Standard Assets\Characters\RollerBall\RollerBallGuidelines.txt" />
     <None Include="Assets\Standard Assets\Characters\ThirdPersonCharacter\ThirdPersonCharacterGuidelines.txt" />
