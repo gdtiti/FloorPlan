@@ -131,7 +131,7 @@ public class FloorPlan : MonoBehaviour {
         position = Input.mousePosition;
         position.z = mainCamera.GetComponent<Transform>().position.y;
         screenToWorldPointPosition = mainCamera.ScreenToWorldPoint(position);
-        sphere.transform.position = screenToWorldPointPosition;
+        //sphere.transform.position = screenToWorldPointPosition;
         if (Input.GetMouseButtonDown(0))
         {
             GameObject lighting = new GameObject("Lighting Equipment");
@@ -145,6 +145,11 @@ public class FloorPlan : MonoBehaviour {
     private bool once = false;
     void initFurniture()
     {
+        position = Input.mousePosition;
+        position.z = mainCamera.GetComponent<Transform>().position.y;
+        screenToWorldPointPosition = mainCamera.ScreenToWorldPoint(position);
+        //sphere.transform.position = screenToWorldPointPosition;
+
         if (!once)
         {
        
@@ -170,14 +175,14 @@ public class FloorPlan : MonoBehaviour {
             //Debug.Log("-----------");
             for(int i = 0; i < furniture.Length; i++)
             {
-                initFurniturePosition(i);
+                initoneFurniturePosition(i);
             }
             roomTextSave(ref room);
             once = true;
         }
     }
 
-    void initFurniturePosition(int i)
+    void initoneFurniturePosition(int i)
     {
         Collider[] col;
         if (onFurniture.Length != 0 && onFurniture[i] != null) Destroy(onFurniture[i]);
@@ -190,7 +195,7 @@ public class FloorPlan : MonoBehaviour {
             onFurniture[i].transform.rotation =
              Quaternion.Euler(0.0f, Random.Range(-180.0f, 180f), 0.0f);
             BoxCollider box = onFurniture[i].GetComponent<BoxCollider>();
-            col = Physics.OverlapBox(box.bounds.center, box.bounds.size  / 2.0f, onFurniture[i].transform.rotation);
+            col = Physics.OverlapBox(box.bounds.center, box.bounds.size / 2.0f, onFurniture[i].transform.rotation);
         } while (col.Length > 1);
     }
 
@@ -203,31 +208,75 @@ public class FloorPlan : MonoBehaviour {
 
         int move = Random.Range(0, 4);
         move = 0;
+        //GaussianMove
         if(move == 0)
         {
             int fid = Random.Range(0, furniture.Length);
+            //家具がどの部屋にあるのか調べるルーチン
             int rid = -9999;
-            for(int i = 0; i < room.Count; i++)
+            for (int i = 0; i < room.Count; i++)
             {
-                if(onFurniture[fid].transform.position.x > room[i].x && onFurniture[fid].transform.position.x < room[i].z)
+                if (onFurniture[fid].transform.position.x > room[i].x && onFurniture[fid].transform.position.x < room[i].z)
                 {
-                    if(onFurniture[fid].transform.position.z < room[i].y && onFurniture[fid].transform.position.z > room[i].w)
+                    if (onFurniture[fid].transform.position.z < room[i].y && onFurniture[fid].transform.position.z > room[i].w)
                     {
                         rid = i;
-                    }else if(onFurniture[fid].transform.position.z > room[i].y && onFurniture[fid].transform.position.z < room[i].w)
+                    }
+                    else if (onFurniture[fid].transform.position.z > room[i].y && onFurniture[fid].transform.position.z < room[i].w)
                     {
                         rid = i;
                     }
                 }
-                if(rid != -9999)
+                if (rid != -9999)
                 {
                     break;
                 }
             }
-            Debug.Log("onFurniture["+fid.ToString()+"]:room["+rid.ToString()+"]");
+            Debug.Log("onFurniture[" + fid.ToString() + "]:room[" + rid.ToString() + "]");
 
-            Vector3 diff = new Vector3(rand_normal(0.0f,0.1f), 0.0f, rand_normal(0.0f,0.1f));
-            
+            Collider[] col1; Vector3 diff;
+            float mu = 0.0f, sigma = 0.05f;
+            int limit = 0;
+            tempFurniture = onFurniture;
+            //----------diffにすると壁から出ていく...(何とか直さないといけない)------------------
+            do
+            {
+                diff = new Vector3(rand_normal(mu, sigma), 0.0f, rand_normal(mu, sigma));
+                //if (onFurniture[fid].transform.position.x + diff.x < room[rid].x || onFurniture[fid].transform.position.x + diff.x > room[rid].z
+                //    || onFurniture[fid].transform.position.z + diff.z > room[rid].y || onFurniture[fid].transform.position.z + diff.z < room[rid].w)
+                //{
+                //   diff = new Vector3(rand_normal(mu, sigma), 0.0f, rand_normal(mu, sigma));
+                //}
+                limit++;
+                if (limit > 70)
+                {
+                    diff = new Vector3(0.0f, 0.0f, 0.0f);
+                    break;
+                }
+                tempFurniture[fid].transform.position += diff;
+                BoxCollider box = tempFurniture[fid].GetComponent<BoxCollider>();
+                //onFurniture[fid].transform.position += diff;
+                //BoxCollider box = onFurniture[fid].GetComponent<BoxCollider>();
+                col1 = Physics.OverlapBox(box.bounds.center, box.bounds.size / 2.0f, onFurniture[fid].transform.rotation);
+                tempFurniture[fid].transform.position -= diff;
+            } while (col1.Length > 1);
+            onFurniture[fid].transform.position += diff;
+            //-------------------------------------------------------------------------------
+         
+         }
+        //RotationGaussian
+        else if(move == 1)
+        {
+
+        }
+        //RandomSwap
+        else if(move == 2)
+        {
+
+        }
+        //SelectRoom
+        else if(move == 3)
+        {
 
         }
     }
@@ -292,25 +341,53 @@ public class FloorPlan : MonoBehaviour {
     }
 	
 	void Update () {
+        position = Input.mousePosition;
+        position.z = mainCamera.GetComponent<Transform>().position.y;
+        screenToWorldPointPosition = mainCamera.ScreenToWorldPoint(position);
+        sphere.transform.position = screenToWorldPointPosition;
+
+        //間取り設定
         if (floorFlag)
         {
             createFloor();
         }
+
+        //PointLightを配置
         if (guiSceneScript.lightFlag)
         {
+            if(cubeList.Count != 0)
+            {
+                for(int i = 0; i < cubeList.Count; i++)
+                {
+                    Destroy(cubeList[i]);
+                }
+                cubeList.Clear();
+            }
             mainCamera.orthographic = false;
             setLightPosition();
         }
+
+        //家具を初期位置に配置
         if (guiSceneScript.furnitureFlag)
         {
+            if (cubeList.Count != 0)
+            {
+                for (int i = 0; i < cubeList.Count; i++)
+                {
+                    Destroy(cubeList[i]);
+                }
+                cubeList.Clear();
+            }
             mainCamera.orthographic = false;
             initFurniture();
         }
-        if (guiSceneScript.suggestion)
+
+        //提案レイアウト(MetropolisHastings)
+        if (guiSceneScript.suggestion || Input.GetKey(KeyCode.Q))
         {
             mainCamera.orthographic = false;
-            Debug.Log("suggestion");
-            int loopCount = 1;
+            //Debug.Log("suggestion");
+            int loopCount = 1000;
 
             for(int i = 0; i < loopCount; i++)
             {
