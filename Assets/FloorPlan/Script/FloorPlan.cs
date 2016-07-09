@@ -206,10 +206,9 @@ public class FloorPlan : MonoBehaviour {
         cost = costFunction();
         p0 = densityFunction(cost);
 
-        int move = Random.Range(0, 4);
-        move = 0;
+        int move = Random.Range(0, 3);
         //GaussianMove
-        if(move == 0)
+        if (move == 0)
         {
             int fid = Random.Range(0, furniture.Length);
             //家具がどの部屋にあるのか調べるルーチン
@@ -235,49 +234,81 @@ public class FloorPlan : MonoBehaviour {
             Debug.Log("onFurniture[" + fid.ToString() + "]:room[" + rid.ToString() + "]");
 
             Collider[] col1; Vector3 diff;
-            float mu = 0.0f, sigma = 0.05f;
+            float mu = 0.0f, sigma = 0.1f;
             int limit = 0;
             tempFurniture = onFurniture;
-            //----------diffにすると壁から出ていく...(何とか直さないといけない)------------------
             do
             {
                 diff = new Vector3(rand_normal(mu, sigma), 0.0f, rand_normal(mu, sigma));
-                //if (onFurniture[fid].transform.position.x + diff.x < room[rid].x || onFurniture[fid].transform.position.x + diff.x > room[rid].z
-                //    || onFurniture[fid].transform.position.z + diff.z > room[rid].y || onFurniture[fid].transform.position.z + diff.z < room[rid].w)
-                //{
-                //   diff = new Vector3(rand_normal(mu, sigma), 0.0f, rand_normal(mu, sigma));
-                //}
                 limit++;
-                if (limit > 70)
+                if (limit > 100)
                 {
                     diff = new Vector3(0.0f, 0.0f, 0.0f);
                     break;
                 }
                 tempFurniture[fid].transform.position += diff;
                 BoxCollider box = tempFurniture[fid].GetComponent<BoxCollider>();
-                //onFurniture[fid].transform.position += diff;
-                //BoxCollider box = onFurniture[fid].GetComponent<BoxCollider>();
                 col1 = Physics.OverlapBox(box.bounds.center, box.bounds.size / 2.0f, onFurniture[fid].transform.rotation);
                 tempFurniture[fid].transform.position -= diff;
             } while (col1.Length > 1);
             onFurniture[fid].transform.position += diff;
-            //-------------------------------------------------------------------------------
-         
-         }
+        }
         //RotationGaussian
-        else if(move == 1)
+        else if (move == 1)
         {
-
+            int fid = Random.Range(0, furniture.Length);
+            Collider[] col1; Vector3 rdiff;
+            float mu = 0.0f, sigma = 10.0f;
+            int limit = 0;
+            tempFurniture = onFurniture;
+            do
+            {
+                rdiff = new Vector3(0.0f, rand_normal(mu, sigma), 0.0f);
+                limit++;
+                if (limit > 100)
+                {
+                    rdiff = new Vector3(0.0f, 0.0f, 0.0f);
+                    break;
+                }
+                tempFurniture[fid].transform.eulerAngles += rdiff;
+                BoxCollider box = tempFurniture[fid].GetComponent<BoxCollider>();
+                col1 = Physics.OverlapBox(box.bounds.center, box.bounds.size / 2.0f, onFurniture[fid].transform.rotation);
+                tempFurniture[fid].transform.eulerAngles -= rdiff;
+            } while (col1.Length > 1);
+            onFurniture[fid].transform.eulerAngles += rdiff;
         }
-        //RandomSwap
-        else if(move == 2)
+        //RandomSwap(部屋間の移動も含める)
+        else if (move == 2)
         {
-
-        }
-        //SelectRoom
-        else if(move == 3)
-        {
-
+            Vector3 ttemp;
+            Collider[] col1, col2;
+            int onefID, twofID, limit = 0;
+            tempFurniture = onFurniture;
+            do
+            {
+                if (limit++ > 100)
+                {
+                    onefID = twofID = 0;
+                    break;
+                }
+                onefID = Random.Range(0, furniture.Length);
+                twofID = onefID;
+                while (twofID == onefID)
+                {
+                    twofID = Random.Range(0, furniture.Length);
+                }
+                ttemp = tempFurniture[onefID].transform.position;
+                tempFurniture[onefID].transform.position = tempFurniture[twofID].transform.position;
+                tempFurniture[twofID].transform.position = ttemp;
+                BoxCollider box1 = tempFurniture[onefID].GetComponent<BoxCollider>();
+                BoxCollider box2 = tempFurniture[twofID].GetComponent<BoxCollider>();
+                col1 = Physics.OverlapBox(box1.bounds.center, box1.bounds.size / 2.0f, tempFurniture[onefID].transform.rotation);
+                col2 = Physics.OverlapBox(box2.bounds.center, box2.bounds.size / 2.0f, tempFurniture[twofID].transform.rotation);
+                tempFurniture = onFurniture;
+            } while (col1.Length > 1 || col2.Length>1);
+            ttemp = onFurniture[onefID].transform.position;
+            onFurniture[onefID].transform.position = onFurniture[twofID].transform.position;
+            onFurniture[twofID].transform.position = ttemp;
         }
     }
 
@@ -387,7 +418,7 @@ public class FloorPlan : MonoBehaviour {
         {
             mainCamera.orthographic = false;
             //Debug.Log("suggestion");
-            int loopCount = 1000;
+            int loopCount = 1;
 
             for(int i = 0; i < loopCount; i++)
             {
