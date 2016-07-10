@@ -7,6 +7,7 @@ public class FloorPlan : MonoBehaviour {
     public GameObject[] furniture;              //家具の読み込み
     private GameObject[] onFurniture;           //置いた家具
     private GameObject[] tempFurniture;         //swap用の家具のゲームオブジェクト
+    private GameObject[] beforeFurniture;       //遷移前の置いた家具の位置を保存
 
     public Camera mainCamera;                   //メインカメラ(上からのカメラ)
     public Camera sceneViewCamera;              //カメラ２つ目(SceneViewカメラ)
@@ -26,6 +27,7 @@ public class FloorPlan : MonoBehaviour {
         position.z = mainCamera.GetComponent<Transform>().position.y;
         screenToWorldPointPosition = mainCamera.ScreenToWorldPoint(position);
         sphere.transform.position = screenToWorldPointPosition;
+        float wheight = 3.0f;
         if (Input.GetMouseButtonDown(0))
         {
             if (cubeList.Count == 2)
@@ -56,7 +58,7 @@ public class FloorPlan : MonoBehaviour {
                 bwall1[0].transform.position = wall1[0].transform.position;
                 wall1[0].transform.eulerAngles = new Vector3(0, 0, 0);
                 bwall1[0].transform.eulerAngles = new Vector3(0, 180f, 0);
-                wall1[0].transform.localScale = new Vector3(Mathf.Abs(cubeList[0].transform.position.x - cubeList[1].transform.position.x), 2.5f, 1f);
+                wall1[0].transform.localScale = new Vector3(Mathf.Abs(cubeList[0].transform.position.x - cubeList[1].transform.position.x), wheight, 1f);
                 bwall1[0].transform.localScale = wall1[0].transform.localScale;
 
                 //right
@@ -65,7 +67,7 @@ public class FloorPlan : MonoBehaviour {
                 bwall1[1].transform.position = wall1[1].transform.position;
                 wall1[1].transform.eulerAngles = new Vector3(0, 90f, 0);
                 bwall1[1].transform.eulerAngles = new Vector3(0, 270f, 0);
-                wall1[1].transform.localScale = new Vector3(Mathf.Abs(cubeList[0].transform.position.z - cubeList[1].transform.position.z), 2.5f, 1f);
+                wall1[1].transform.localScale = new Vector3(Mathf.Abs(cubeList[0].transform.position.z - cubeList[1].transform.position.z), wheight, 1f);
                 bwall1[1].transform.localScale = wall1[1].transform.localScale;
 
                 //bottom
@@ -74,7 +76,7 @@ public class FloorPlan : MonoBehaviour {
                 bwall1[2].transform.position = wall1[2].transform.position;
                 wall1[2].transform.eulerAngles = new Vector3(0, 0, 0);
                 bwall1[2].transform.eulerAngles = new Vector3(0, 180f, 0);
-                wall1[2].transform.localScale = new Vector3(Mathf.Abs(cubeList[0].transform.position.x - cubeList[1].transform.position.x), 2.5f, 1f);
+                wall1[2].transform.localScale = new Vector3(Mathf.Abs(cubeList[0].transform.position.x - cubeList[1].transform.position.x), wheight, 1f);
                 bwall1[2].transform.localScale = wall1[2].transform.localScale;
 
                 //left
@@ -83,7 +85,7 @@ public class FloorPlan : MonoBehaviour {
                 bwall1[3].transform.position = wall1[3].transform.position;
                 wall1[3].transform.eulerAngles = new Vector3(0, 90f, 0);
                 bwall1[3].transform.eulerAngles = new Vector3(0, 270f, 0);
-                wall1[3].transform.localScale = new Vector3(Mathf.Abs(cubeList[0].transform.position.z - cubeList[1].transform.position.z), 2.5f, 1f);
+                wall1[3].transform.localScale = new Vector3(Mathf.Abs(cubeList[0].transform.position.z - cubeList[1].transform.position.z), wheight, 1f);
                 bwall1[3].transform.localScale = wall1[3].transform.localScale;
 
                 cubePoint.Add(cubeList[0].transform.position);
@@ -202,6 +204,9 @@ public class FloorPlan : MonoBehaviour {
 
     void MetropolisHastings()
     {
+        //前の状態を保存
+        beforeFurniture = onFurniture;
+
         float p0, cost, p, alpha, acost;
 
         cost = costFunction();
@@ -309,6 +314,25 @@ public class FloorPlan : MonoBehaviour {
             onFurniture[onefID].transform.position = onFurniture[twofID].transform.position;
             onFurniture[twofID].transform.position = ttemp;
         }
+
+        acost = costFunction();
+        p = densityFunction(acost);
+        alpha = p / p0;
+        if (alpha > 1) alpha = 1.0f;
+        float t = Random.Range(0.0f, 1.0f);
+
+        //状態を遷移しない
+        if (alpha <= t)
+        {
+            //前の状態に戻す．
+            onFurniture = beforeFurniture;
+        }
+        //状態を遷移する
+        else
+        {
+            //すでに状態を遷移しているから何もしない
+        }
+
     }
 
     float rand_normal(float mu, float sigma)
@@ -421,7 +445,7 @@ public class FloorPlan : MonoBehaviour {
         {
             mainCamera.orthographic = false;
             //Debug.Log("suggestion");
-            int loopCount = 1;
+            int loopCount = 10000;
 
             for(int i = 0; i < loopCount; i++)
             {
