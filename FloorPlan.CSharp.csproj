@@ -70,6 +70,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\FloorPlan\Script\FloorPlan.cs" />
+    <Compile Include="Assets\FloorPlan\Script\SceneViewCamera.cs" />
     <Compile Include="Assets\FloorPlan\Script\guiSceneScript.cs" />
     <Compile Include="Assets\FloorPlan\Script\line.cs" />
   </ItemGroup>

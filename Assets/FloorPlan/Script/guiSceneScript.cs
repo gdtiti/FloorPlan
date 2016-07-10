@@ -7,26 +7,29 @@ public class guiSceneScript : MonoBehaviour {
     public static bool lightFlag = false;
     public static bool furnitureFlag = false;
     public static bool suggestion = false;
+    public static int cameraCount = 0;          //Camera変更のため
 
     void Start()
     {
-        text.text = "Setting Floor Plan ...";
+        //text.text = "Setting Floor Plan ...";
+        //mainCamera = true;
+        //sceneCamera = false;
     }
 
     void Update()
     {
-        if (lightFlag)
-        {
-            text.text = "Setting Lighting positions ...";
-        }
-        if (furnitureFlag)
-        {
-            text.text = "Setting Furniture positions ...";
-        }
-        if (suggestion)
-        {
-            text.text = "Suggestion";
-        }
+        //if (lightFlag)
+        //{
+        //    text.text = "Setting Lighting positions ...";
+        //}
+        //if (furnitureFlag)
+        //{
+        //    text.text = "Setting Furniture positions ...";
+        //}
+        //if (suggestion)
+        //{
+        //    text.text = "Suggestion";
+        //}
     }
 
 
@@ -52,6 +55,12 @@ public class guiSceneScript : MonoBehaviour {
         furnitureFlag = false;
         lightFlag = false;
         FloorPlan.floorFlag = false;
+    }
+
+    //カメラ変更ボタンのクリック回数を調べる．
+    public void OnChangeCameraButtonClick()
+    {
+        cameraCount++;
     }
  
 }

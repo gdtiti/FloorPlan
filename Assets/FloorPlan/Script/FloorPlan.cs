@@ -9,7 +9,7 @@ public class FloorPlan : MonoBehaviour {
     private GameObject[] tempFurniture;         //swap用の家具のゲームオブジェクト
 
     public Camera mainCamera;                   //メインカメラ(上からのカメラ)
-    public Camera fpsCamera;                    //カメラ２つ目(FPSカメラ)
+    public Camera sceneViewCamera;              //カメラ２つ目(SceneViewカメラ)
     private Vector3 position;                   //マウスのスクリーン座標
     private Vector3 screenToWorldPointPosition; //マウスのワールド座標
     private GameObject sphere;                  //マウスポインタ
@@ -152,8 +152,9 @@ public class FloorPlan : MonoBehaviour {
 
         if (!once)
         {
-       
-            float jou = 1.824f;//１畳の大きさ
+
+            //float jou = 1.824f;//１畳の大きさ
+            float jou = 2.1f;
             for (int i = 0; i < cubePoint.Count; i += 2)
             {
                 //Debug.Log(cubePoint[i]);
@@ -240,8 +241,7 @@ public class FloorPlan : MonoBehaviour {
             do
             {
                 diff = new Vector3(rand_normal(mu, sigma), 0.0f, rand_normal(mu, sigma));
-                limit++;
-                if (limit > 100)
+                if (limit++ > 100)
                 {
                     diff = new Vector3(0.0f, 0.0f, 0.0f);
                     break;
@@ -264,8 +264,7 @@ public class FloorPlan : MonoBehaviour {
             do
             {
                 rdiff = new Vector3(0.0f, rand_normal(mu, sigma), 0.0f);
-                limit++;
-                if (limit > 100)
+                if (limit++ > 100)
                 {
                     rdiff = new Vector3(0.0f, 0.0f, 0.0f);
                     break;
@@ -352,6 +351,10 @@ public class FloorPlan : MonoBehaviour {
         //平行投影(true)透視投影(false)
         mainCamera.orthographic = true;
 
+        //先にMainCameraから利用する
+        mainCamera.enabled = true;
+        sceneViewCamera.enabled = false;
+
         Random.seed = 0;
         //floorPlanの設定用のflag
         floorFlag = true;
@@ -427,6 +430,25 @@ public class FloorPlan : MonoBehaviour {
             Debug.Log(loopCount.ToString() + "回");
             Debug.Log(mincost);
             guiSceneScript.suggestion = false;
+        }
+
+        //カメラを変える
+        if(guiSceneScript.cameraCount % 2 == 0)
+        {
+            mainCamera.enabled = true;
+            sceneViewCamera.enabled = false;
+        }else if(guiSceneScript.cameraCount % 2 == 1)
+        {
+            mainCamera.enabled = false;
+            sceneViewCamera.enabled = true;
+            if (cubeList.Count != 0)
+            {
+                for (int i = 0; i < cubeList.Count; i++)
+                {
+                    Destroy(cubeList[i]);
+                }
+                cubeList.Clear();
+            }
         }
     }
 
