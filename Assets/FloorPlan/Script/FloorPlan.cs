@@ -422,6 +422,7 @@ public class FloorPlan : MonoBehaviour {
           }
         }
 
+        //既存手法の場合(0,3)，複数部屋の場合(0,4)
         int move = Random.Range(0, 4);
         //move = 3;
         //GaussianMove
@@ -793,12 +794,14 @@ public class FloorPlan : MonoBehaviour {
 
     }
 
-    //重心のバランスの計算(作ろう！)
+    //重心のバランスの計算
     void calcVisualBalance(ref float mvb, int roomID)
     {
-        float sumArea = 0.0f, oneArea;
+        float sumArea = 0.0f;
         mvb = 0.0f;
-        Vector3 centroid, roomCenter;
+        Vector3 centroid, rCenter;
+        rCenter = new Vector3((room[roomID].x + room[roomID].z) / 2.0f, 0.0f, (room[roomID].y + room[roomID].w) / 2.0f);
+        centroid = new Vector3(0.0f, 0.0f, 0.0f);
         List<int> inroom;
         inroom = new List<int>();
 
@@ -815,17 +818,91 @@ public class FloorPlan : MonoBehaviour {
                 }
             }
         }
+
+        for (int i = 0; i < inroom.Count; i++)
+        {
+            float oneSize = onFurniture[inroom[i]].GetComponent<BoxCollider>().bounds.size.x * onFurniture[inroom[i]].GetComponent<BoxCollider>().bounds.size.z;
+            sumArea += oneSize;
+            centroid += oneSize * onFurniture[inroom[i]].transform.position;
+        }
+        centroid /= sumArea;
+
+        mvb = (centroid - rCenter).magnitude;
+
     }
 
-    //作ろう！
+    //中心を向くようにする
     void calcEmphasis(ref float mef,ref float msy,int roomID)
     {
+        mef = 0.0f; msy = 0.0f;
+        Vector3 d, dc, rcenter;
+        rcenter = new Vector3((room[roomID].x + room[roomID].z) / 2.0f, 0.0f, (room[roomID].y + room[roomID].w) / 2.0f);
+        List<int> inroom;
+        inroom = new List<int>();
+
+        for (int i = 0; i < furniture.Length; i++)
+        {
+            if (onFurniture[i].transform.position.x > room[roomID].x && onFurniture[i].transform.position.x < room[roomID].z)
+            {
+                if (onFurniture[i].transform.position.z < room[roomID].y && onFurniture[i].transform.position.z > room[roomID].w)
+                {
+                    inroom.Add(i);
+                }
+                else if (onFurniture[i].transform.position.z > room[roomID].y && onFurniture[i].transform.position.z < room[roomID].w)
+                {
+                    inroom.Add(i);
+                }
+            }
+        }
+
+        for (int i = 0; i < inroom.Count; i++)
+        {
+            if(onFurniture[inroom[i]].gameObject.tag == "Armchair" || onFurniture[inroom[i]].gameObject.tag == "Sofa" 
+                || onFurniture[inroom[i]].gameObject.tag == "DiningChair" || onFurniture[inroom[i]].gameObject.tag == "TV")
+            {
+                float theta = onFurniture[inroom[i]].transform.eulerAngles.y;
+                d = new Vector3(Mathf.Sin(theta * Mathf.PI / 180.0f), 0.0f, Mathf.Cos(theta * Mathf.PI / 180.0f));
+                dc = rcenter - onFurniture[inroom[i]].transform.position;
+                dc /= dc.magnitude;
+                mef -= Vector3.Dot(d, dc);
+            }
+        }
 
     }
 
-    //作ろう！
+    //歩ける空間を確保する
     void calcCirculation(ref float mci, int roomID)
     {
+        mci = 0.0f;
+        float cfree, roomArea, sumArea = 0.0f;
+        List<int> inroom;
+        inroom = new List<int>();
+
+        for (int i = 0; i < furniture.Length; i++)
+        {
+            if (onFurniture[i].transform.position.x > room[roomID].x && onFurniture[i].transform.position.x < room[roomID].z)
+            {
+                if (onFurniture[i].transform.position.z < room[roomID].y && onFurniture[i].transform.position.z > room[roomID].w)
+                {
+                    inroom.Add(i);
+                }
+                else if (onFurniture[i].transform.position.z > room[roomID].y && onFurniture[i].transform.position.z < room[roomID].w)
+                {
+                    inroom.Add(i);
+                }
+            }
+        }
+
+        for (int i = 0; i < inroom.Count; i++)
+        {
+            sumArea += onFurniture[inroom[i]].GetComponent<BoxCollider>().bounds.size.x * onFurniture[inroom[i]].GetComponent<BoxCollider>().bounds.size.z;
+        }
+
+        roomArea = Mathf.Abs(room[roomID].x - room[roomID].z) * Mathf.Abs(room[roomID].y - room[roomID].w);
+
+        cfree = (roomArea - sumArea) / roomArea;
+
+        mci -= t(cfree, 0.4f, 0.7f, 3);
 
     }
 
@@ -836,8 +913,10 @@ public class FloorPlan : MonoBehaviour {
 
         float mpd = 0, mpa = 0, wpd = 6.5f, wpa = 4.0f;     //Pairwise Relationship
         float mcd = 0, mca = 0, wcd = 4.5f, wca = 3.0f;     //Conversation
-        float mvb = 0, wvb = 3.0f;                          //Balance 15
-        float mfa = 0, mwa = 0, wfa = 3.5f, wwa = 3.5f;     //Alignment 2.5 2.5
+        float mvb = 0, wvb = 6.0f;                          //Balance 15
+        float mfa = 0, mwa = 0, wfa = 25.0f, wwa = 5.0f;     //Alignment 2.5 2.5
+        float mci = 0, wci = 100.0f;                          //Circulation
+        float mef = 0, msy = 0, wef = 100.0f, wsy = 1.0f;    //Emphasis
 
        
         mpd = 0.0f; mpa = 0.0f; mcd = 0.0f; mca = 0.0f; mvb = 0.0f; mfa = 0.0f; mwa = 0.0f;
@@ -845,8 +924,10 @@ public class FloorPlan : MonoBehaviour {
         calcConversation(ref mcd, ref mca, roomNo);
         calcVisualBalance(ref mvb, roomNo);
         calcAlignment(ref mfa, ref mwa, roomNo);
+        calcCirculation(ref mci, roomNo);
+        calcEmphasis(ref mef, ref msy, roomNo);
 
-        cost += wpd * mpd + wpa * mpa + wcd * mcd + wca * mca + wvb * mvb + wfa * mfa + wwa * mwa;
+        cost += wpd * mpd + wpa * mpa + wcd * mcd + wca * mca + wvb * mvb + wfa * mfa + wwa * mwa + wci * mci + wef * mef + wsy * msy;
         return cost;
     }
 
@@ -998,6 +1079,32 @@ public class FloorPlan : MonoBehaviour {
             guiSceneScript.suggestion = false;
         }
 
+        //整列させるよ
+        if (guiSceneScript.allign)
+        {
+            for (int i = 0; i < furniture.Length; i++)
+            {
+                if (Mathf.Floor((onFurniture[i].transform.eulerAngles.y + 45.0f) / 90.0f) == 0)
+                {
+                    onFurniture[i].transform.eulerAngles = new Vector3(0.0f, 0.0f, 0.0f);
+                } else if (Mathf.Floor((onFurniture[i].transform.eulerAngles.y + 45.0f) / 90.0f) == 1) 
+                {
+                    onFurniture[i].transform.eulerAngles = new Vector3(0.0f, 90.0f, 0.0f);
+                }else if(Mathf.Floor((onFurniture[i].transform.eulerAngles.y + 45.0f) / 90.0f) == 2)
+                {
+                    onFurniture[i].transform.eulerAngles = new Vector3(0.0f, 180.0f, 0.0f);
+                }else if(Mathf.Floor((onFurniture[i].transform.eulerAngles.y + 45.0f) / 90.0f) == 3)
+                {
+                    onFurniture[i].transform.eulerAngles = new Vector3(0.0f, 270.0f, 0.0f);
+                }else if(Mathf.Floor((onFurniture[i].transform.eulerAngles.y + 45.0f) / 90.0f) == 4)
+                {
+                    onFurniture[i].transform.eulerAngles = new Vector3(0.0f, 0.0f, 0.0f);
+                }
+            }
+            guiSceneScript.allign = false;
+        }
+
+
         //カメラを変える
         if(guiSceneScript.cameraCount % 2 == 0)
         {
@@ -1028,6 +1135,10 @@ public class FloorPlan : MonoBehaviour {
         {
             onFurniture[3].transform.position += new Vector3(0.0f, 0.0f, -0.05f);
             Debug.Log((onFurniture[3].transform.position - onFurniture[11].transform.position).magnitude);
+        }else if (Input.GetKey(KeyCode.RightArrow))
+        {
+            onFurniture[3].transform.eulerAngles += new Vector3(0.0f, 1.0f, 0.0f);
+            Debug.Log(onFurniture[3].transform.eulerAngles.y);
         }
         //--------------------------------------------------------------------------------------------------
 

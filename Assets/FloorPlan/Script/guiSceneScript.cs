@@ -8,6 +8,7 @@ public class guiSceneScript : MonoBehaviour {
     public static bool furnitureFlag = false;
     public static bool suggestion = false;
     public static int cameraCount = 0;          //Camera変更のため
+    public static bool allign = false;
 
     void Start()
     {
@@ -61,6 +62,11 @@ public class guiSceneScript : MonoBehaviour {
     public void OnChangeCameraButtonClick()
     {
         cameraCount++;
+    }
+
+    public void OnAllignButton()
+    {
+        allign = true;
     }
  
 }
