@@ -8,8 +8,9 @@ public class FloorPlan : MonoBehaviour {
     private GameObject[] onFurniture;           //置いた家具
     private GameObject[] tempFurniture;         //swap用の家具のゲームオブジェクト
     private GameObject[] beforeFurniture;       //遷移前の置いた家具の位置を保存
-    private Vector3[] mintrans, minrotation;    //mincostのときの値を保存
+    private Vector3[] mintrans, minrotation;    //mincostのときの位置と回転
     private Vector3[] beforeTrans, beforeRotation;//遷移前の位置と回転
+    private Vector3[] tempTrans, tempRotation;  //いったん保存用の位置と回転
 
     public Camera mainCamera;                   //メインカメラ(上からのカメラ)
     public Camera sceneViewCamera;              //カメラ２つ目(SceneViewカメラ)
@@ -232,15 +233,19 @@ public class FloorPlan : MonoBehaviour {
     void MetropolisHastings()
     {
         //前の状態を保存
-        //beforeFurniture = onFurniture;
-        for (int i = 0; i < furniture.Length; i++)
-        {
-            beforeTrans[i] = onFurniture[i].transform.position;
-            beforeRotation[i] = onFurniture[i].transform.position;
-        }
+        beforeFurniture = onFurniture;
+        //for (int i = 0; i < furniture.Length; i++)
+        //{
+        //    beforeTrans[i] = onFurniture[i].transform.position;
+        //    beforeRotation[i] = onFurniture[i].transform.position;
+        //}
 
-        float p0, bcost, p, alpha, acost;
+        float p0, bcost = 0, p, alpha, acost = 0;
 
+        //for (int i = 0; i < room.Count; i++)
+        //{
+        //    bcost += costFunction_v2(i);
+        //}
         bcost = costFunction();
         p0 = densityFunction(bcost);
 
@@ -274,6 +279,10 @@ public class FloorPlan : MonoBehaviour {
             float mu = 0.0f, sigma = 0.1f;
             int limit = 0;
             tempFurniture = onFurniture;
+            //for (int i = 0; i < furniture.Length; i++)
+            //{
+            //    tempTrans[i] = new Vector3(onFurniture[i].transform.position.x, onFurniture[i].transform.position.y, onFurniture[i].transform.position.z);
+            //}
             do
             {
                 diff = new Vector3(rand_normal(mu, sigma), 0.0f, rand_normal(mu, sigma));
@@ -576,6 +585,258 @@ public class FloorPlan : MonoBehaviour {
 
     }
 
+    void MetropolisHastings_v3()
+    {
+        //前の状態を保存
+        beforeFurniture = onFurniture;
+        //for (int i = 0; i < furniture.Length; i++)
+        //{
+        //    beforeTrans[i] = new Vector3(onFurniture[i].transform.position.x, onFurniture[i].transform.position.y, onFurniture[i].transform.position.z);
+        //    beforeRotation[i] = new Vector3(onFurniture[i].transform.position.x, onFurniture[i].transform.position.y, onFurniture[i].transform.position.z);
+        //}
+
+        float p0, bcost = 0, p, alpha, acost = 0;
+
+        for (int i = 0; i < room.Count; i++)
+        {
+            bcost += costFunction_v2(i);
+        }
+        p0 = densityFunction(bcost);
+
+        int move = Random.Range(0, 4);
+        //GaussianMove
+        if (move == 0)
+        {
+            int fid = Random.Range(0, furniture.Length);
+            //家具がどの部屋にあるのか調べるルーチン
+            int rid = -9999;
+            for (int i = 0; i < room.Count; i++)
+            {
+                if (onFurniture[fid].transform.position.x > room[i].x && onFurniture[fid].transform.position.x < room[i].z)
+                {
+                    if (onFurniture[fid].transform.position.z < room[i].y && onFurniture[fid].transform.position.z > room[i].w)
+                    {
+                        rid = i;
+                    }
+                    else if (onFurniture[fid].transform.position.z > room[i].y && onFurniture[fid].transform.position.z < room[i].w)
+                    {
+                        rid = i;
+                    }
+                }
+                if (rid != -9999)
+                {
+                    break;
+                }
+            }
+
+            Collider[] col1; Vector3 diff;
+            float mu = 0.0f, sigma = 0.1f;
+            int limit = 0;
+            tempFurniture = onFurniture;
+            do
+            {
+                diff = new Vector3(rand_normal(mu, sigma), 0.0f, rand_normal(mu, sigma));
+                if (limit++ > 100)
+                {
+                    diff = new Vector3(0.0f, 0.0f, 0.0f);
+                    break;
+                }
+                tempFurniture[fid].transform.position += diff;
+                BoxCollider box = tempFurniture[fid].GetComponent<BoxCollider>();
+                col1 = Physics.OverlapBox(box.bounds.center, box.bounds.size / 2.0f, onFurniture[fid].transform.rotation);
+                tempFurniture[fid].transform.position -= diff;
+            } while (col1.Length > 1);
+            onFurniture[fid].transform.position += diff;
+        }
+        //RotationGaussian
+        else if (move == 1)
+        {
+            int fid = Random.Range(0, furniture.Length);
+            Collider[] col1; Vector3 rdiff;
+            float mu = 0.0f, sigma = 10.0f;
+            int limit = 0;
+            tempFurniture = onFurniture;
+            do
+            {
+                rdiff = new Vector3(0.0f, rand_normal(mu, sigma), 0.0f);
+                if (limit++ > 100)
+                {
+                    rdiff = new Vector3(0.0f, 0.0f, 0.0f);
+                    break;
+                }
+                tempFurniture[fid].transform.eulerAngles += rdiff;
+                BoxCollider box = tempFurniture[fid].GetComponent<BoxCollider>();
+                col1 = Physics.OverlapBox(box.bounds.center, box.bounds.size / 2.0f, onFurniture[fid].transform.rotation);
+                tempFurniture[fid].transform.eulerAngles -= rdiff;
+            } while (col1.Length > 1);
+            onFurniture[fid].transform.eulerAngles += rdiff;
+        }
+        //RandomSwap(部屋内スワップ)
+        else if (move == 2)
+        {
+            Vector3 swaptemp = new Vector3();
+            Collider[] col1, col2;
+            int onefID, twofID, limit = 0;
+            tempFurniture = onFurniture;
+            for (int i = 0; i < furniture.Length; i++)
+            {
+                tempTrans[i] = new Vector3(onFurniture[i].transform.position.x, onFurniture[i].transform.position.y, onFurniture[i].transform.position.z);
+            }
+            
+            int roomID = Random.Range(0, room.Count);
+
+            List<int> inroom;
+            inroom = new List<int>();
+
+            for (int i = 0; i < furniture.Length; i++)
+            {
+                if (onFurniture[i].transform.position.x > room[roomID].x && onFurniture[i].transform.position.x < room[roomID].z)
+                {
+                    if (onFurniture[i].transform.position.z < room[roomID].y && onFurniture[i].transform.position.z > room[roomID].w)
+                    {
+                        inroom.Add(i);
+                    }
+                    else if (onFurniture[i].transform.position.z > room[roomID].y && onFurniture[i].transform.position.z < room[roomID].w)
+                    {
+                        inroom.Add(i);
+                    }
+                }
+            }
+
+            if(inroom.Count > 1)
+            {
+                do
+                {
+                    if (limit++ > 100)
+                    {
+                        onefID = twofID = 0;
+                        break;
+                    }
+                    onefID = inroom[Random.Range(0, inroom.Count)];
+                    twofID = onefID;
+                    while (twofID == onefID)
+                    {
+                        twofID = inroom[Random.Range(0,inroom.Count)];
+                    }
+                    swaptemp = tempFurniture[onefID].transform.position;
+                    tempFurniture[onefID].transform.position = tempFurniture[twofID].transform.position;
+                    tempFurniture[twofID].transform.position = swaptemp;
+                    BoxCollider box1 = tempFurniture[onefID].GetComponent<BoxCollider>();
+                    BoxCollider box2 = tempFurniture[twofID].GetComponent<BoxCollider>();
+                    col1 = Physics.OverlapBox(box1.bounds.center, box1.bounds.size / 2.0f, tempFurniture[onefID].transform.rotation);
+                    col2 = Physics.OverlapBox(box2.bounds.center, box2.bounds.size / 2.0f, tempFurniture[twofID].transform.rotation);
+                    tempFurniture = onFurniture;
+                    //for (int i = 0; i < furniture.Length; i++)
+                    //{
+                    //    tempFurniture[i].transform.position = new Vector3(tempTrans[i].x, tempTrans[i].y, tempTrans[i].z);
+                    //}
+                } while (col1.Length > 1 || col2.Length > 1);
+                if(onefID != twofID)
+                {
+                    swaptemp = new Vector3(onFurniture[onefID].transform.position.x, onFurniture[onefID].transform.position.y, onFurniture[onefID].transform.position.z);
+                    onFurniture[onefID].transform.position = new Vector3(onFurniture[twofID].transform.position.x, onFurniture[twofID].transform.position.y, onFurniture[twofID].transform.position.z);
+                    onFurniture[twofID].transform.position = new Vector3(swaptemp.x, swaptemp.y, swaptemp.z);
+                }
+                else
+                {
+                    for (int i = 0; i < furniture.Length; i++)
+                    {
+                        onFurniture[i].transform.position = new Vector3(tempTrans[i].x, tempTrans[i].y, tempTrans[i].z);
+                    }
+                }
+            }
+            
+        }
+        //1個一気に移動
+        else if (move == 3)
+        {
+            int fid = Random.Range(0, furniture.Length);
+            //家具がどの部屋にあるのか調べるルーチン
+            int rid = new int();
+            for (int i = 0; i < room.Count; i++)
+            {
+                if (onFurniture[fid].transform.position.x > room[i].x && onFurniture[fid].transform.position.x < room[i].z)
+                {
+                    if (onFurniture[fid].transform.position.z < room[i].y && onFurniture[fid].transform.position.z > room[i].w)
+                    {
+                        rid = i;
+                    }
+                    else if (onFurniture[fid].transform.position.z > room[i].y && onFurniture[fid].transform.position.z < room[i].w)
+                    {
+                        rid = i;
+                    }
+                }
+            }
+
+            int changeRoom;
+            do
+            {
+                changeRoom = Random.Range(0, room.Count);
+            } while (changeRoom == rid);
+
+            Collider[] col;
+            int limit = 0;
+            Vector3 bTrans = onFurniture[fid].transform.position;
+            do
+            {
+                if (limit++ > 100)
+                {
+                    onFurniture[fid].transform.position = bTrans;
+                    break;
+                }
+                onFurniture[fid].transform.position =
+                 new Vector3(Random.Range(room[changeRoom].x, room[changeRoom].z), 0.02f, Random.Range(room[changeRoom].y, room[changeRoom].w));
+                BoxCollider box = onFurniture[fid].GetComponent<BoxCollider>();
+                col = Physics.OverlapBox(box.bounds.center, box.bounds.size / 2.0f, onFurniture[fid].transform.rotation);
+            } while (col.Length > 1);
+
+        }
+
+
+        for (int i = 0; i < room.Count; i++)
+        {
+            acost += costFunction_v2(i);
+        }
+        p = densityFunction(acost);
+        alpha = p / p0;
+        if (alpha > 1) alpha = 1.0f;
+        float t = Random.Range(0.0f, 1.0f);
+
+        //状態を遷移しない
+        if (alpha <= t)
+        {
+            //前の状態に戻す．
+            onFurniture = beforeFurniture;
+            //for (int i = 0; i < furniture.Length; i++)
+            //{
+            //    onFurniture[i].transform.position = new Vector3(beforeTrans[i].x, beforeTrans[i].y, beforeTrans[i].z);
+            //    onFurniture[i].transform.eulerAngles = new Vector3(beforeRotation[i].x, beforeTrans[i].y, beforeTrans[i].z);
+            //}
+
+        }
+        //状態を遷移する
+        else
+        {
+            //すでに状態を遷移しているから何もしない
+        }
+
+        //mincostが更新されたときちゃんと変更しないといけないよね
+        if (acost < bcost)
+        {
+            bcost = acost;
+        }
+        if (mincost > bcost)
+        {
+            mincost = bcost;
+
+            for (int i = 0; i < furniture.Length; i++)
+            {
+                mintrans[i] = new Vector3(onFurniture[i].transform.position.x, onFurniture[i].transform.position.y, onFurniture[i].transform.position.z);
+                minrotation[i] = new Vector3(onFurniture[i].transform.eulerAngles.x, onFurniture[i].transform.eulerAngles.y, onFurniture[i].transform.eulerAngles.z);
+            }
+        }
+
+    }
 
     float rand_normal(float mu, float sigma)
     {
@@ -902,7 +1163,7 @@ public class FloorPlan : MonoBehaviour {
 
         cfree = (roomArea - sumArea) / roomArea;
 
-        mci -= t(cfree, 0.4f, 0.7f, 3);
+        mci -= t(cfree, 0.8f, 0.9f, 3);
 
     }
 
@@ -911,12 +1172,12 @@ public class FloorPlan : MonoBehaviour {
     {
         float cost = 0;
 
-        float mpd = 0, mpa = 0, wpd = 6.5f, wpa = 4.0f;     //Pairwise Relationship
-        float mcd = 0, mca = 0, wcd = 4.5f, wca = 3.0f;     //Conversation
-        float mvb = 0, wvb = 6.0f;                          //Balance 15
-        float mfa = 0, mwa = 0, wfa = 25.0f, wwa = 5.0f;     //Alignment 2.5 2.5
-        float mci = 0, wci = 100.0f;                          //Circulation
-        float mef = 0, msy = 0, wef = 100.0f, wsy = 1.0f;    //Emphasis
+        float mci = 0, wci = 2.0f;                          //Circulation
+        float mpd = 0, mpa = 0, wpd = 1.0f, wpa = 1.0f;     //Pairwise Relationship
+        float mcd = 0, mca = 0, wcd = 1.0f, wca = 1.0f;     //Conversation
+        float mvb = 0, wvb = 1.5f;                          //Balance 
+        float mfa = 0, mwa = 0, wfa = 2.5f, wwa = 2.5f;     //Alignment 
+        float mef = 0, msy = 0, wef = 4.0f, wsy = 1.0f;     //Emphasis
 
        
         mpd = 0.0f; mpa = 0.0f; mcd = 0.0f; mca = 0.0f; mvb = 0.0f; mfa = 0.0f; mwa = 0.0f;
@@ -927,7 +1188,8 @@ public class FloorPlan : MonoBehaviour {
         calcCirculation(ref mci, roomNo);
         calcEmphasis(ref mef, ref msy, roomNo);
 
-        cost += wpd * mpd + wpa * mpa + wcd * mcd + wca * mca + wvb * mvb + wfa * mfa + wwa * mwa + wci * mci + wef * mef + wsy * msy;
+        //cost += wci * mci / 1.0f + wpd * mpd / 10.0f + wcd * mcd / 8.0f + wca * mca / 14.0f + wvb * mvb / 5.0f + wfa * mfa / 12.0f + wwa * mwa / 4.0f + wef * mef / 3.0f;
+        cost += mef;
         return cost;
     }
 
@@ -1000,6 +1262,8 @@ public class FloorPlan : MonoBehaviour {
         minrotation = new Vector3[furniture.Length];
         beforeTrans = new Vector3[furniture.Length];
         beforeRotation = new Vector3[furniture.Length];
+        tempTrans = new Vector3[furniture.Length];
+        tempRotation = new Vector3[furniture.Length];
 
         mincost = 9999;
     }
@@ -1051,31 +1315,46 @@ public class FloorPlan : MonoBehaviour {
         {
             mainCamera.orthographic = false;
             //Debug.Log("suggestion");
-            int loopCount = 5000;
-            //int loopCount = 1;
+            //int loopCount = 50000;
 
-            for (int i = 0; i < room.Count; i++)
+            //for (int i = 0; i < room.Count; i++)
+            //{
+            //    mincost = 9999;
+            //    for (int j = 0; j < loopCount; j++)
+            //    {
+            //        MetropolisHastings_v2(i);
+            //        //for (int k = 0; k < furniture.Length; k++)
+            //        //{
+            //        //    onFurniture[k].transform.position = new Vector3(mintrans[k].x, mintrans[k].y, mintrans[k].z);
+            //        //    onFurniture[k].transform.eulerAngles = new Vector3(minrotation[k].x, minrotation[k].y, minrotation[k].z);
+            //        //}
+            //    }
+
+            //    for (int k = 0; k < furniture.Length; k++)
+            //    {
+            //        onFurniture[k].transform.position = new Vector3(mintrans[k].x, mintrans[k].y, mintrans[k].z);
+            //        onFurniture[k].transform.eulerAngles = new Vector3(minrotation[k].x, minrotation[k].y, minrotation[k].z);
+            //    }
+            //}
+
+            //int loopCount = 5000;
+            int loopCount = 1;
+            for (int i = 0; i < loopCount; i++)
             {
-                mincost = 9999;
-                for (int j = 0; j < loopCount; j++)
+                MetropolisHastings_v3();
+
+                for(int j = 0; j < furniture.Length; j++)
                 {
-                    MetropolisHastings_v2(i);
-                    //for (int k = 0; k < furniture.Length; k++)
-                    //{
-                    //    onFurniture[k].transform.position = new Vector3(mintrans[k].x, mintrans[k].y, mintrans[k].z);
-                    //    onFurniture[k].transform.eulerAngles = new Vector3(minrotation[k].x, minrotation[k].y, minrotation[k].z);
-                    //}
-                }
-                for (int k = 0; k < furniture.Length; k++)
-                {
-                    onFurniture[k].transform.position = new Vector3(mintrans[k].x, mintrans[k].y, mintrans[k].z);
-                    onFurniture[k].transform.eulerAngles = new Vector3(minrotation[k].x, minrotation[k].y, minrotation[k].z);
+                    onFurniture[j].transform.position = new Vector3(mintrans[j].x, mintrans[j].y, mintrans[j].z);
+                    onFurniture[j].transform.eulerAngles = new Vector3(minrotation[j].x, minrotation[j].y, minrotation[j].z);
                 }
             }
+
+
             Debug.Log(loopCount.ToString() + "回");
             Debug.Log(mincost);
             //状態を遷移させる
-            mincost = 9999;
+            //mincost = 9999;
             guiSceneScript.suggestion = false;
         }
 
@@ -1101,6 +1380,44 @@ public class FloorPlan : MonoBehaviour {
                     onFurniture[i].transform.eulerAngles = new Vector3(0.0f, 0.0f, 0.0f);
                 }
             }
+
+            for (int i = 0; i < furniture.Length; i++)
+            {
+                if(onFurniture[i].gameObject.tag == "TV")
+                {
+                    int i_tv = new int();
+                    for (int j = 0; j < room.Count; j++)
+                    {
+                        if (onFurniture[i].transform.position.x > room[j].x && onFurniture[i].transform.position.x < room[j].z)
+                        {
+                            if (onFurniture[i].transform.position.z < room[j].y && onFurniture[i].transform.position.z > room[j].w)
+                            {
+                                i_tv = j; break;
+                            }
+                            else if (onFurniture[i].transform.position.z > room[j].y && onFurniture[i].transform.position.z < room[j].w)
+                            {
+                                i_tv = j; break;
+                            }
+                        }
+                    }
+
+                    if(Mathf.Floor(onFurniture[i].transform.eulerAngles.y) == 90)
+                    {
+                        onFurniture[i].transform.position = new Vector3(room[i_tv].x + onFurniture[i].GetComponent<BoxCollider>().bounds.size.x / 2.0f, onFurniture[i].transform.position.y, onFurniture[i].transform.position.z);
+                    }else if(Mathf.Floor(onFurniture[i].transform.eulerAngles.y) == 180)
+                    {
+                        onFurniture[i].transform.position = new Vector3(onFurniture[i].transform.position.x, onFurniture[i].transform.position.y, room[i_tv].y - onFurniture[i].GetComponent<BoxCollider>().bounds.size.z / 2.0f);
+                    }else if(Mathf.Floor(onFurniture[i].transform.eulerAngles.y) == 270)
+                    {
+                        onFurniture[i].transform.position = new Vector3(room[i_tv].z - onFurniture[i].GetComponent<BoxCollider>().bounds.size.x / 2.0f, onFurniture[i].transform.position.y, onFurniture[i].transform.position.z);
+                    }else if(Mathf.Floor(onFurniture[i].transform.eulerAngles.y) == 0)
+                    {
+                        onFurniture[i].transform.position = new Vector3(onFurniture[i].transform.position.x, onFurniture[i].transform.position.y, room[i_tv].w + onFurniture[i].GetComponent<BoxCollider>().bounds.size.z / 2.0f);
+                    }
+                }
+            }
+
+
             guiSceneScript.allign = false;
         }
 
