@@ -866,58 +866,75 @@ public class FloorPlan : MonoBehaviour {
             }
         }
 
-        for(int i = 0; i < inroom.Count; i++)
+        if (inroom.Count != 0)
         {
-            for(int j = i + 1; j < inroom.Count; j++)
+            for (int i = 0; i < inroom.Count; i++)
             {
-                Vector3 d = onFurniture[inroom[i]].transform.position - onFurniture[inroom[j]].transform.position;
-                distance = d.magnitude;
+                for (int j = i + 1; j < inroom.Count; j++)
+                {
+                    Vector3 d = onFurniture[inroom[i]].transform.position - onFurniture[inroom[j]].transform.position;
+                    distance = d.magnitude;
 
-                if((onFurniture[inroom[i]].gameObject.tag == "Armchair" && onFurniture[inroom[j]].gameObject.tag == "CoffeeTable")
-                    ||(onFurniture[inroom[i]].gameObject.tag == "CoffeeTable" && onFurniture[inroom[j]].gameObject.tag == "Armchair"))
-                {
-                    p = 1.0f; mind = 1.1f; maxd = 1.6f;
-                }else if((onFurniture[inroom[i]].gameObject.tag == "Armchair" && onFurniture[inroom[j]].gameObject.tag == "Sofa")
-                    ||(onFurniture[inroom[i]].gameObject.tag == "Sofa" && onFurniture[inroom[j]].gameObject.tag == "Armchair"))
-                {
-                    p = 1.0f; mind = 1.6f; maxd = 2.3f;
-                }else if((onFurniture[inroom[i]].gameObject.tag == "CoffeeTable" && onFurniture[inroom[j]].gameObject.tag == "Sofa")
-                    ||(onFurniture[inroom[i]].gameObject.tag == "Sofa" && onFurniture[inroom[j]].gameObject.tag == "CoffeeTable"))
-                {
-                    p = 1.0f; mind = 1.1f; maxd = 1.9f;
-                }else if(onFurniture[inroom[i]].gameObject.tag == "Armchair" && onFurniture[inroom[j]].gameObject.tag == "Armchair")
-                {
-                    p = 1.0f; mind = 1.7f; maxd = 2.3f;
-                }else if((onFurniture[inroom[i]].gameObject.tag == "Armchair" && onFurniture[inroom[j]].gameObject.tag == "TV")
-                    || (onFurniture[inroom[i]].gameObject.tag == "TV" && onFurniture[inroom[j]].gameObject.tag == "Armchair"))
-                {
-                    p = 1.0f; mind = 1.6f; maxd = 2.3f;
-                }else if((onFurniture[inroom[i]].gameObject.tag == "CoffeeTable" && onFurniture[inroom[j]].gameObject.tag == "TV")
-                    || (onFurniture[inroom[i]].gameObject.tag == "TV" && onFurniture[inroom[j]].gameObject.tag == "CoffeeTable"))
-                {
-                    p = 1.0f; mind = 1.1f; maxd = 1.9f;
-                }else if((onFurniture[inroom[i]].gameObject.tag == "Sofa" && onFurniture[inroom[j]].gameObject.tag == "TV")
-                    || (onFurniture[inroom[i]].gameObject.tag == "TV" && onFurniture[inroom[j]].gameObject.tag == "Sofa"))
-                {
-                    p = 1.0f; mind = 2.2f; maxd = 3.2f;
-                }else if(onFurniture[inroom[i]].gameObject.tag == "CoffeeTable" && onFurniture[inroom[j]].gameObject.tag == "CoffeeTable")
-                {
-                    p = 1.0f; mind = 2.4f; maxd = 3.2f;
-                }else if((onFurniture[inroom[i]].gameObject.tag == "DiningTable" && onFurniture[inroom[j]].gameObject.tag == "DiningChair")
-                    || (onFurniture[inroom[i]].gameObject.tag == "DiningChair" && onFurniture[inroom[j]].gameObject.tag == "DiningTable"))
-                {
-                    p = 1.0f; mind = 1.2f; maxd = 1.8f;
-                }else if((onFurniture[inroom[i]].gameObject.tag == "DiningTable" && onFurniture[inroom[j]].gameObject.tag == "CoffeeTable")
-                    ||(onFurniture[inroom[i]].gameObject.tag == "CoffeeTable" && onFurniture[inroom[j]].gameObject.tag == "DiningTable"))
-                {
-                    p = 1.0f; mind = 2.6f; maxd = 3.5f;
+                    if ((onFurniture[inroom[i]].gameObject.tag == "Armchair" && onFurniture[inroom[j]].gameObject.tag == "CoffeeTable")
+                        || (onFurniture[inroom[i]].gameObject.tag == "CoffeeTable" && onFurniture[inroom[j]].gameObject.tag == "Armchair"))
+                    {
+                        p = 1.0f; mind = 1.1f; maxd = 1.6f;
+                    }
+                    else if ((onFurniture[inroom[i]].gameObject.tag == "Armchair" && onFurniture[inroom[j]].gameObject.tag == "Sofa")
+                       || (onFurniture[inroom[i]].gameObject.tag == "Sofa" && onFurniture[inroom[j]].gameObject.tag == "Armchair"))
+                    {
+                        p = 1.0f; mind = 1.6f; maxd = 2.3f;
+                    }
+                    else if ((onFurniture[inroom[i]].gameObject.tag == "CoffeeTable" && onFurniture[inroom[j]].gameObject.tag == "Sofa")
+                       || (onFurniture[inroom[i]].gameObject.tag == "Sofa" && onFurniture[inroom[j]].gameObject.tag == "CoffeeTable"))
+                    {
+                        p = 1.0f; mind = 1.1f; maxd = 1.9f;
+                    }
+                    else if (onFurniture[inroom[i]].gameObject.tag == "Armchair" && onFurniture[inroom[j]].gameObject.tag == "Armchair")
+                    {
+                        p = 1.0f; mind = 1.7f; maxd = 2.3f;
+                    }
+                    else if ((onFurniture[inroom[i]].gameObject.tag == "Armchair" && onFurniture[inroom[j]].gameObject.tag == "TV")
+                       || (onFurniture[inroom[i]].gameObject.tag == "TV" && onFurniture[inroom[j]].gameObject.tag == "Armchair"))
+                    {
+                        p = 1.0f; mind = 1.6f; maxd = 2.3f;
+                    }
+                    else if ((onFurniture[inroom[i]].gameObject.tag == "CoffeeTable" && onFurniture[inroom[j]].gameObject.tag == "TV")
+                       || (onFurniture[inroom[i]].gameObject.tag == "TV" && onFurniture[inroom[j]].gameObject.tag == "CoffeeTable"))
+                    {
+                        p = 1.0f; mind = 1.1f; maxd = 1.9f;
+                    }
+                    else if ((onFurniture[inroom[i]].gameObject.tag == "Sofa" && onFurniture[inroom[j]].gameObject.tag == "TV")
+                       || (onFurniture[inroom[i]].gameObject.tag == "TV" && onFurniture[inroom[j]].gameObject.tag == "Sofa"))
+                    {
+                        p = 1.0f; mind = 2.2f; maxd = 3.2f;
+                    }
+                    else if (onFurniture[inroom[i]].gameObject.tag == "CoffeeTable" && onFurniture[inroom[j]].gameObject.tag == "CoffeeTable")
+                    {
+                        p = 1.0f; mind = 2.4f; maxd = 3.2f;
+                    }
+                    else if ((onFurniture[inroom[i]].gameObject.tag == "DiningTable" && onFurniture[inroom[j]].gameObject.tag == "DiningChair")
+                       || (onFurniture[inroom[i]].gameObject.tag == "DiningChair" && onFurniture[inroom[j]].gameObject.tag == "DiningTable"))
+                    {
+                        p = 1.0f; mind = 1.2f; maxd = 1.8f;
+                    }
+                    else if ((onFurniture[inroom[i]].gameObject.tag == "DiningTable" && onFurniture[inroom[j]].gameObject.tag == "CoffeeTable")
+                       || (onFurniture[inroom[i]].gameObject.tag == "CoffeeTable" && onFurniture[inroom[j]].gameObject.tag == "DiningTable"))
+                    {
+                        p = 1.0f; //mind = 2.6f; maxd = 3.5f;
+                        mind = 2.0f; maxd = 3.0f;
+                    }
+                    else
+                    {
+                        p = 0.0f; mind = 0.0f; maxd = 0.0f;
+                    }
+                    mpd -= p * t(distance, mind, maxd, 2);
                 }
-                else
-                {
-                    p = 0.0f; mind = 0.0f; maxd = 0.0f;
-                }
-                mpd -= p * t(distance, mind, maxd, 2);
             }
+        }
+        else
+        {
+            mpd += 1000.0f;
         }
 
     }
@@ -944,74 +961,92 @@ public class FloorPlan : MonoBehaviour {
             }
         }
 
-        for (int i = 0; i < inroom.Count; i++)
+        if (inroom.Count != 0)
         {
-            for (int j = i + 1; j < inroom.Count; j++)
+            for (int i = 0; i < inroom.Count; i++)
             {
-                Vector3 d = onFurniture[inroom[j]].transform.position - onFurniture[inroom[i]].transform.position;
-                distance = d.magnitude;
-                d.x /= distance; d.y = 0.0f; d.z /= distance;
-                float thetaf = onFurniture[inroom[i]].transform.eulerAngles.y;
-                float thetag = onFurniture[inroom[j]].transform.eulerAngles.y;
+                for (int j = i + 1; j < inroom.Count; j++)
+                {
+                    Vector3 d = onFurniture[inroom[j]].transform.position - onFurniture[inroom[i]].transform.position;
+                    distance = d.magnitude;
+                    d.x /= distance; d.y = 0.0f; d.z /= distance;
+                    float thetaf = onFurniture[inroom[i]].transform.eulerAngles.y;
+                    float thetag = onFurniture[inroom[j]].transform.eulerAngles.y;
 
-                Vector3 f = new Vector3(Mathf.Sin(thetaf * Mathf.PI / 180.0f), 0.0f, Mathf.Cos(thetaf * Mathf.PI / 180.0f));
-                Vector3 g = new Vector3(Mathf.Sin(thetag * Mathf.PI / 180.0f), 0.0f, Mathf.Cos(thetag * Mathf.PI / 180.0f));
+                    Vector3 f = new Vector3(Mathf.Sin(thetaf * Mathf.PI / 180.0f), 0.0f, Mathf.Cos(thetaf * Mathf.PI / 180.0f));
+                    Vector3 g = new Vector3(Mathf.Sin(thetag * Mathf.PI / 180.0f), 0.0f, Mathf.Cos(thetag * Mathf.PI / 180.0f));
 
-                if ((onFurniture[inroom[i]].gameObject.tag == "Armchair" && onFurniture[inroom[j]].gameObject.tag == "Sofa")
-                    || (onFurniture[inroom[i]].gameObject.tag == "Sofa" && onFurniture[inroom[j]].gameObject.tag == "Armchair"))
-                {
-                    q = 1.0f; mind = 1.7f; maxd = 2.3f;
-                    cosfg = Vector3.Dot(f, d); cosgf = Vector3.Dot(g, -d);
+                    if ((onFurniture[inroom[i]].gameObject.tag == "Armchair" && onFurniture[inroom[j]].gameObject.tag == "Sofa")
+                        || (onFurniture[inroom[i]].gameObject.tag == "Sofa" && onFurniture[inroom[j]].gameObject.tag == "Armchair"))
+                    {
+                        q = 1.0f; mind = 1.7f; maxd = 2.3f;
+                        cosfg = Vector3.Dot(f, d); cosgf = Vector3.Dot(g, -d);
+                    }
+                    else if (onFurniture[inroom[i]].gameObject.tag == "Armchair" && onFurniture[inroom[j]].gameObject.tag == "Armchair")
+                    {
+                        q = 1.0f; mind = 2.4f; maxd = 3.2f;
+                        cosfg = Vector3.Dot(f, d); cosgf = Vector3.Dot(g, -d);
+                    }
+                    else if ((onFurniture[inroom[i]].gameObject.tag == "Armchair" && onFurniture[inroom[j]].gameObject.tag == "TV")
+                       || (onFurniture[inroom[i]].gameObject.tag == "TV" && onFurniture[inroom[j]].gameObject.tag == "Armchair"))
+                    {
+                        q = 1.0f; mind = 1.7f; maxd = 2.3f;
+                        cosfg = Vector3.Dot(f, d); cosgf = Vector3.Dot(g, -d);
+                    }
+                    else if ((onFurniture[inroom[i]].gameObject.tag == "Sofa" && onFurniture[inroom[j]].gameObject.tag == "TV")
+                       || (onFurniture[inroom[i]].gameObject.tag == "TV" && onFurniture[inroom[j]].gameObject.tag == "Sofa"))
+                    {
+                        q = 1.0f; mind = 2.4f; maxd = 3.2f;
+                        cosfg = Vector3.Dot(f, d); cosgf = Vector3.Dot(g, -d);
+                    }
+                    else if ((onFurniture[inroom[i]].gameObject.tag == "CoffeeTable" && onFurniture[inroom[j]].gameObject.tag == "TV")
+                      || (onFurniture[inroom[i]].gameObject.tag == "TV" && onFurniture[inroom[j]].gameObject.tag == "CoffeeTable"))
+                    {
+                        q = 1.0f; mind = 1.1f; maxd = 1.9f;
+                        cosfg = Vector3.Dot(f, d); cosgf = Vector3.Dot(g, -d);
+                    }
+                    else if ((onFurniture[inroom[i]].gameObject.tag == "CoffeeTable" && onFurniture[inroom[j]].gameObject.tag == "Armchair")
+                   || (onFurniture[inroom[i]].gameObject.tag == "Armchair" && onFurniture[inroom[j]].gameObject.tag == "CoffeeTable"))
+                    {
+                        q = 1.0f; mind = 1.1f; maxd = 1.6f;
+                        cosfg = Vector3.Dot(f, d); cosgf = Vector3.Dot(g, -d);
+                    }
+                    else if (onFurniture[inroom[i]].gameObject.tag == "DiningChair" && onFurniture[inroom[j]].gameObject.tag == "DiningChair")
+                    {
+                        q = 1.0f; mind = 2.4f; maxd = 3.6f;
+                        cosfg = Vector3.Dot(f, d); cosgf = Vector3.Dot(g, -d);
+                    }
+                    else if ((onFurniture[inroom[i]].gameObject.tag == "DiningChair" && onFurniture[inroom[j]].gameObject.tag == "TV")
+                       || (onFurniture[inroom[i]].gameObject.tag == "TV" && onFurniture[inroom[j]].gameObject.tag == "DiningChair"))
+                    {
+                        q = 1.0f; mind = 1.7f; maxd = 2.3f;
+                        cosfg = Vector3.Dot(f, d); cosgf = Vector3.Dot(g, -d);
+                    }
+                    else if ((onFurniture[inroom[i]].gameObject.tag == "DiningTable" && onFurniture[inroom[j]].gameObject.tag == "DiningChair")
+                       || (onFurniture[inroom[i]].gameObject.tag == "DiningChair" && onFurniture[inroom[j]].gameObject.tag == "DiningTable"))
+                    {
+                        q = 1.0f; mind = 1.8f; maxd = 2.3f;
+                        cosfg = Vector3.Dot(f, d); cosgf = Vector3.Dot(g, -d);
+                    }
+                    else if((onFurniture[inroom[i]].gameObject.tag == "DiningTable" && onFurniture[inroom[i]].gameObject.tag == "CoffeeTable")
+                        ||(onFurniture[inroom[i]].gameObject.tag == "CoffeeTable" && onFurniture[inroom[i]].gameObject.tag == "DiningTable"))
+                    {
+                        q = 1.0f; mind = 2.5f; maxd = 3.5f;
+                        cosfg = Vector3.Dot(f, d); cosgf = Vector3.Dot(g, -d);
+                    }
+                    else
+                    {
+                        q = 0.0f; mind = 0.0f; maxd = 0.0f; cosfg = 0.0f; cosgf = 0.0f;
+                    }
+                    mcd -= q * t(distance, mind, maxd, 2);
+                    mca -= q * (cosfg + 1) * (cosgf + 1);
                 }
-                else if (onFurniture[inroom[i]].gameObject.tag == "Armchair" && onFurniture[inroom[j]].gameObject.tag == "Armchair")
-                {
-                    q = 1.0f; mind = 2.4f; maxd = 3.2f;
-                    cosfg = Vector3.Dot(f, d); cosgf = Vector3.Dot(g, -d);
-                }
-                else if ((onFurniture[inroom[i]].gameObject.tag == "Armchair" && onFurniture[inroom[j]].gameObject.tag == "TV")
-                   || (onFurniture[inroom[i]].gameObject.tag == "TV" && onFurniture[inroom[j]].gameObject.tag == "Armchair"))
-                {
-                    q = 1.0f; mind = 1.7f; maxd = 2.3f;
-                    cosfg = Vector3.Dot(f, d); cosgf = Vector3.Dot(g, -d);
-                }
-                else if ((onFurniture[inroom[i]].gameObject.tag == "Sofa" && onFurniture[inroom[j]].gameObject.tag == "TV")
-                   || (onFurniture[inroom[i]].gameObject.tag == "TV" && onFurniture[inroom[j]].gameObject.tag == "Sofa"))
-                {
-                    q = 1.0f; mind = 2.4f; maxd = 3.2f;
-                    cosfg = Vector3.Dot(f, d); cosgf = Vector3.Dot(g, -d);
-                } else if ((onFurniture[inroom[i]].gameObject.tag == "CoffeeTable" && onFurniture[inroom[j]].gameObject.tag == "TV")
-                    ||(onFurniture[inroom[i]].gameObject.tag == "TV" && onFurniture[inroom[j]].gameObject.tag == "CoffeeTable"))
-                {
-                    q = 1.0f;mind = 1.1f; maxd = 1.9f;
-                    cosfg = Vector3.Dot(f, d); cosgf = Vector3.Dot(g, -d);
-                } else if ((onFurniture[inroom[i]].gameObject.tag == "CoffeeTable" && onFurniture[inroom[j]].gameObject.tag == "Armchair")
-                 || (onFurniture[inroom[i]].gameObject.tag == "Armchair" && onFurniture[inroom[j]].gameObject.tag == "CoffeeTable"))
-                {
-                    q = 1.0f; mind = 1.1f; maxd = 1.6f;
-                    cosfg = Vector3.Dot(f, d); cosgf = Vector3.Dot(g, -d);
-                }
-                else if (onFurniture[inroom[i]].gameObject.tag == "DiningChair" && onFurniture[inroom[j]].gameObject.tag == "DiningChair")
-                {
-                    q = 1.0f; mind = 2.4f; maxd = 3.6f;
-                    cosfg = Vector3.Dot(f, d); cosgf = Vector3.Dot(g, -d);
-                } else if ((onFurniture[inroom[i]].gameObject.tag == "DiningChair" && onFurniture[inroom[j]].gameObject.tag == "TV")
-                     || (onFurniture[inroom[i]].gameObject.tag == "TV" && onFurniture[inroom[j]].gameObject.tag == "DiningChair"))
-                {
-                    q = 1.0f; mind = 1.7f; maxd = 2.3f;
-                    cosfg = Vector3.Dot(f, d); cosgf = Vector3.Dot(g, -d);
-                } else if ((onFurniture[inroom[i]].gameObject.tag == "DiningTable" && onFurniture[inroom[j]].gameObject.tag == "DiningChair")
-                     || (onFurniture[inroom[i]].gameObject.tag == "DiningChair" && onFurniture[inroom[j]].gameObject.tag == "DiningTable"))
-                {
-                    q = 1.0f; mind = 1.8f; maxd = 2.3f;
-                    cosfg = Vector3.Dot(f, d); cosgf = Vector3.Dot(g, -d);
-                }
-                else
-                {
-                    q = 0.0f; mind = 0.0f; maxd = 0.0f; cosfg = 0.0f; cosgf = 0.0f;
-                }
-                mcd -= q * t(distance, mind, maxd, 2);
-                mca -= q * (cosfg + 1) * (cosgf + 1);
             }
+        }
+        else
+        {
+            mcd += 1000.0f;
+            mca += 1000.0f;
         }
 
     }
@@ -1038,19 +1073,27 @@ public class FloorPlan : MonoBehaviour {
             }
         }
 
-        //mfaの計算
-        for (int i = 0; i < inroom.Count; i++)
+        if (inroom.Count != 0)
         {
-            for(int j = i + 1; j < inroom.Count; j++)
+            //mfaの計算
+            for (int i = 0; i < inroom.Count; i++)
             {
-                mfa -= Mathf.Cos(4 * (-onFurniture[inroom[i]].transform.eulerAngles.y + onFurniture[inroom[j]].transform.eulerAngles.y) * Mathf.PI / 180.0f);
+                for (int j = i + 1; j < inroom.Count; j++)
+                {
+                    mfa -= Mathf.Cos(4 * (-onFurniture[inroom[i]].transform.eulerAngles.y + onFurniture[inroom[j]].transform.eulerAngles.y) * Mathf.PI / 180.0f);
+                }
+            }
+
+            //mwaの計算まだちゃんとできてない．．．
+            for (int i = 0; i < inroom.Count; i++)
+            {
+                mwa -= Mathf.Cos(4 * (onFurniture[inroom[i]].transform.eulerAngles.y));
             }
         }
-
-        //mwaの計算まだちゃんとできてない．．．
-        for (int i = 0; i < inroom.Count; i++)
+        else
         {
-            mwa -= Mathf.Cos(4 * (onFurniture[inroom[i]].transform.eulerAngles.y));
+            mfa += 1000.0f;
+            mwa += 1000.0f;
         }
 
     }
@@ -1086,9 +1129,18 @@ public class FloorPlan : MonoBehaviour {
             sumArea += oneSize;
             centroid += oneSize * onFurniture[inroom[i]].transform.position;
         }
-        centroid /= sumArea;
+        if(sumArea != 0)
+        {
+            centroid /= sumArea;
+            mvb += (centroid - rCenter).magnitude;
+        }
+        //部屋に家具が何もないとき．．．コストをめちゃめちゃ上げるか？
+        else
+        {
+            mvb += 1000.0f;
+        }
 
-        mvb = (centroid - rCenter).magnitude;
+
 
     }
 
@@ -1116,17 +1168,24 @@ public class FloorPlan : MonoBehaviour {
             }
         }
 
-        for (int i = 0; i < inroom.Count; i++)
+        if (inroom.Count != 0)
         {
-            if(onFurniture[inroom[i]].gameObject.tag == "Armchair" || onFurniture[inroom[i]].gameObject.tag == "Sofa" 
-                || onFurniture[inroom[i]].gameObject.tag == "DiningChair" || onFurniture[inroom[i]].gameObject.tag == "TV")
+            for (int i = 0; i < inroom.Count; i++)
             {
-                float theta = onFurniture[inroom[i]].transform.eulerAngles.y;
-                d = new Vector3(Mathf.Sin(theta * Mathf.PI / 180.0f), 0.0f, Mathf.Cos(theta * Mathf.PI / 180.0f));
-                dc = rcenter - onFurniture[inroom[i]].transform.position;
-                dc /= dc.magnitude;
-                mef -= Vector3.Dot(d, dc);
+                if (onFurniture[inroom[i]].gameObject.tag == "Armchair" || onFurniture[inroom[i]].gameObject.tag == "Sofa"
+                    || onFurniture[inroom[i]].gameObject.tag == "DiningChair" || onFurniture[inroom[i]].gameObject.tag == "TV")
+                {
+                    float theta = onFurniture[inroom[i]].transform.eulerAngles.y;
+                    d = new Vector3(Mathf.Sin(theta * Mathf.PI / 180.0f), 0.0f, Mathf.Cos(theta * Mathf.PI / 180.0f));
+                    dc = rcenter - onFurniture[inroom[i]].transform.position;
+                    dc /= dc.magnitude;
+                    mef -= Vector3.Dot(d, dc);
+                }
             }
+        }
+        else
+        {
+            mef += 1000.0f;
         }
 
     }
@@ -1153,21 +1212,90 @@ public class FloorPlan : MonoBehaviour {
                 }
             }
         }
-
-        for (int i = 0; i < inroom.Count; i++)
+        if(inroom.Count != 0)
         {
-            sumArea += onFurniture[inroom[i]].GetComponent<BoxCollider>().bounds.size.x * onFurniture[inroom[i]].GetComponent<BoxCollider>().bounds.size.z;
+            for (int i = 0; i < inroom.Count; i++)
+            {
+                sumArea += onFurniture[inroom[i]].GetComponent<BoxCollider>().bounds.size.x * onFurniture[inroom[i]].GetComponent<BoxCollider>().bounds.size.z;
+            }
+
+            roomArea = Mathf.Abs(room[roomID].x - room[roomID].z) * Mathf.Abs(room[roomID].y - room[roomID].w);
+
+            cfree = (roomArea - sumArea) / roomArea;
+
+            mci -= t(cfree, 0.8f, 0.9f, 3);
+            //mci -= t(cfree, 0.7f, 0.8f, 2);
         }
-
-        roomArea = Mathf.Abs(room[roomID].x - room[roomID].z) * Mathf.Abs(room[roomID].y - room[roomID].w);
-
-        cfree = (roomArea - sumArea) / roomArea;
-
-        mci -= t(cfree, 0.8f, 0.9f, 3);
+        //部屋に何もないとき
+        else
+        {
+            mci += 1000.0f;
+        }
+        
 
     }
 
+    //部屋ごとに置く家具を進める評価関数
+    void calcRecommendFurniture(ref float mrf,int roomID)
+    {
+        mrf = 0.0f;
+        List<int> inroom;
+        inroom = new List<int>();
 
+        for (int i = 0; i < furniture.Length; i++)
+        {
+            if (onFurniture[i].transform.position.x > room[roomID].x && onFurniture[i].transform.position.x < room[roomID].z)
+            {
+                if (onFurniture[i].transform.position.z < room[roomID].y && onFurniture[i].transform.position.z > room[roomID].w)
+                {
+                    inroom.Add(i);
+                }
+                else if (onFurniture[i].transform.position.z > room[roomID].y && onFurniture[i].transform.position.z < room[roomID].w)
+                {
+                    inroom.Add(i);
+                }
+            }
+        }
+        if(inroom.Count != 0)
+        {
+            for (int i = 0; i < inroom.Count; i++)
+            {
+                if(/*roomID == 0 && */onFurniture[inroom[i]].gameObject.tag == "DiningTable")
+                {
+                    for (int j = 0; j < inroom.Count; j++)
+                    {
+                        if(onFurniture[inroom[j]].gameObject.tag == "DiningChair")
+                        {
+                            mrf -= 1.0f;
+                        }
+                    }
+                    //mrf -= 1.0f;
+                }
+                //if(roomID == 0 && onFurniture[inroom[i]].gameObject.tag == "DiningChair")
+                //{
+                //    mrf -= 1.0f;
+                //}
+                if(roomID != 0 && onFurniture[inroom[i]].gameObject.tag == "CoffeeTable")
+                {
+                    mrf -= 1.0f;
+                }
+                if(roomID == 0 && onFurniture[inroom[i]].gameObject.tag == "CoffeeTable")
+                {
+                    mrf -= 0.8f;
+                }
+                if(roomID != 0 && onFurniture[inroom[i]].gameObject.tag == "TV")
+                {
+                    mrf -= 1.0f;
+                }
+            }
+        }
+        else
+        {
+            mrf -= 0.0f;
+        }
+    }
+
+    
     float costFunction_v2(int roomNo)
     {
         float cost = 0;
@@ -1178,18 +1306,21 @@ public class FloorPlan : MonoBehaviour {
         float mvb = 0, wvb = 1.5f;                          //Balance 
         float mfa = 0, mwa = 0, wfa = 2.5f, wwa = 2.5f;     //Alignment 
         float mef = 0, msy = 0, wef = 4.0f, wsy = 1.0f;     //Emphasis
+        float mrf = 0, wrf = 1.0f;                          //Recommended
 
        
         mpd = 0.0f; mpa = 0.0f; mcd = 0.0f; mca = 0.0f; mvb = 0.0f; mfa = 0.0f; mwa = 0.0f;
-        calcPairRelation(ref mpd, ref mpa, roomNo);  //mpaはまだできてない．．．
+        calcPairRelation(ref mpd, ref mpa, roomNo); 
         calcConversation(ref mcd, ref mca, roomNo);
         calcVisualBalance(ref mvb, roomNo);
         calcAlignment(ref mfa, ref mwa, roomNo);
         calcCirculation(ref mci, roomNo);
         calcEmphasis(ref mef, ref msy, roomNo);
+        calcRecommendFurniture(ref mrf, roomNo);
 
-        //cost += wci * mci / 1.0f + wpd * mpd / 10.0f + wcd * mcd / 8.0f + wca * mca / 14.0f + wvb * mvb / 5.0f + wfa * mfa / 12.0f + wwa * mwa / 4.0f + wef * mef / 3.0f;
-        cost += mef;
+        cost += wci * mci / 1.0f + wpd * mpd / 10.0f + wcd * mcd / 8.0f + wca * mca / 14.0f + wvb * mvb / 5.0f + wfa * mfa / 12.0f + wwa * mwa / 4.0f + wef * mef / 3.0f;
+        //cost += mef;
+        cost += 5.0f * mrf;
         return cost;
     }
 
@@ -1267,7 +1398,8 @@ public class FloorPlan : MonoBehaviour {
 
         mincost = 9999;
     }
-	
+
+    //int count = 0;
 	void Update () {
         position = Input.mousePosition;
         position.z = mainCamera.GetComponent<Transform>().position.y;
@@ -1337,8 +1469,8 @@ public class FloorPlan : MonoBehaviour {
             //    }
             //}
 
-            //int loopCount = 5000;
-            int loopCount = 1;
+            int loopCount = 5000;
+            //int loopCount = 1;
             for (int i = 0; i < loopCount; i++)
             {
                 MetropolisHastings_v3();
@@ -1348,13 +1480,21 @@ public class FloorPlan : MonoBehaviour {
                     onFurniture[j].transform.position = new Vector3(mintrans[j].x, mintrans[j].y, mintrans[j].z);
                     onFurniture[j].transform.eulerAngles = new Vector3(minrotation[j].x, minrotation[j].y, minrotation[j].z);
                 }
+                //count++;
             }
 
 
             Debug.Log(loopCount.ToString() + "回");
             Debug.Log(mincost);
+            //if(count > 2)
+            //{
+            //    //状態を遷移させる
+            //    mincost = 9999;
+            //    count = 0;
+            //}
+
             //状態を遷移させる
-            //mincost = 9999;
+            mincost = float.MaxValue;
             guiSceneScript.suggestion = false;
         }
 
