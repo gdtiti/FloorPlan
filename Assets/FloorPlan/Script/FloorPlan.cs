@@ -230,6 +230,7 @@ public class FloorPlan : MonoBehaviour {
         } while (col.Length > 1);
     }
 
+    //使わない
     void MetropolisHastings()
     {
         //前の状態を保存
@@ -399,6 +400,7 @@ public class FloorPlan : MonoBehaviour {
 
     }
 
+    //使わない
     void MetropolisHastings_v2(int roomNo)
     {
         //前の状態を保存
@@ -585,6 +587,7 @@ public class FloorPlan : MonoBehaviour {
 
     }
 
+    //これ使う
     void MetropolisHastings_v3()
     {
         //前の状態を保存
@@ -603,6 +606,7 @@ public class FloorPlan : MonoBehaviour {
         }
         p0 = densityFunction(bcost);
 
+        //3のとき部屋内，4のとき部屋間移動あり
         int move = Random.Range(0, 4);
         //GaussianMove
         if (move == 0)
@@ -1256,11 +1260,14 @@ public class FloorPlan : MonoBehaviour {
                 }
             }
         }
+        int coffeeCount = 0;
+        int armCount = 0;
         if(inroom.Count != 0)
         {
             for (int i = 0; i < inroom.Count; i++)
             {
-                if(/*roomID == 0 && */onFurniture[inroom[i]].gameObject.tag == "DiningTable")
+                //家具セットがあればコスト下がる！
+                if (/*roomID == 0 && */onFurniture[inroom[i]].gameObject.tag == "DiningTable")
                 {
                     for (int j = 0; j < inroom.Count; j++)
                     {
@@ -1269,21 +1276,38 @@ public class FloorPlan : MonoBehaviour {
                             mrf -= 1.0f;
                         }
                     }
-                    //mrf -= 1.0f;
                 }
+                //各部屋にコーヒーテーブルは一個まで
+                if(onFurniture[inroom[i]].gameObject.tag == "CoffeeTable")
+                {
+                    coffeeCount++;
+                }
+                if(coffeeCount > 1)
+                {
+                    mrf += 0.5f;
+                }
+                //各部屋にarmchairは2個まで
+                if(onFurniture[inroom[i]].gameObject.tag == "Armchair")
+                {
+                    armCount++;
+                }if(armCount > 2)
+                {
+                    mrf += 0.5f;
+                }
+
                 //if(roomID == 0 && onFurniture[inroom[i]].gameObject.tag == "DiningChair")
                 //{
                 //    mrf -= 1.0f;
                 //}
-                if(roomID != 0 && onFurniture[inroom[i]].gameObject.tag == "CoffeeTable")
+                if (roomID != 0 && onFurniture[inroom[i]].gameObject.tag == "CoffeeTable")
                 {
                     mrf -= 1.0f;
                 }
-                if(roomID == 0 && onFurniture[inroom[i]].gameObject.tag == "CoffeeTable")
+                if (roomID == 0 && onFurniture[inroom[i]].gameObject.tag == "CoffeeTable")
                 {
                     mrf -= 0.8f;
                 }
-                if(roomID != 0 && onFurniture[inroom[i]].gameObject.tag == "TV")
+                if (roomID != 0 && onFurniture[inroom[i]].gameObject.tag == "TV")
                 {
                     mrf -= 1.0f;
                 }
@@ -1521,42 +1545,74 @@ public class FloorPlan : MonoBehaviour {
                 }
             }
 
+            ////TVを端っこにする
+            //for (int i = 0; i < furniture.Length; i++)
+            //{
+            //    if(onFurniture[i].gameObject.tag == "TV")
+            //    {
+            //        int i_tv = new int();
+            //        for (int j = 0; j < room.Count; j++)
+            //        {
+            //            if (onFurniture[i].transform.position.x > room[j].x && onFurniture[i].transform.position.x < room[j].z)
+            //            {
+            //                if (onFurniture[i].transform.position.z < room[j].y && onFurniture[i].transform.position.z > room[j].w)
+            //                {
+            //                    i_tv = j; break;
+            //                }
+            //                else if (onFurniture[i].transform.position.z > room[j].y && onFurniture[i].transform.position.z < room[j].w)
+            //                {
+            //                    i_tv = j; break;
+            //                }
+            //            }
+            //        }
+
+            //        if(Mathf.Floor(onFurniture[i].transform.eulerAngles.y) == 90)
+            //        {
+            //            onFurniture[i].transform.position = new Vector3(room[i_tv].x + onFurniture[i].GetComponent<BoxCollider>().bounds.size.x / 2.0f, onFurniture[i].transform.position.y, onFurniture[i].transform.position.z);
+            //        }else if(Mathf.Floor(onFurniture[i].transform.eulerAngles.y) == 180)
+            //        {
+            //            onFurniture[i].transform.position = new Vector3(onFurniture[i].transform.position.x, onFurniture[i].transform.position.y, room[i_tv].y - onFurniture[i].GetComponent<BoxCollider>().bounds.size.z / 2.0f);
+            //        }else if(Mathf.Floor(onFurniture[i].transform.eulerAngles.y) == 270)
+            //        {
+            //            onFurniture[i].transform.position = new Vector3(room[i_tv].z - onFurniture[i].GetComponent<BoxCollider>().bounds.size.x / 2.0f, onFurniture[i].transform.position.y, onFurniture[i].transform.position.z);
+            //        }else if(Mathf.Floor(onFurniture[i].transform.eulerAngles.y) == 0)
+            //        {
+            //            onFurniture[i].transform.position = new Vector3(onFurniture[i].transform.position.x, onFurniture[i].transform.position.y, room[i_tv].w + onFurniture[i].GetComponent<BoxCollider>().bounds.size.z / 2.0f);
+            //        }
+            //    }
+            //}
+
+
+            //----------------DiningTableとDiningChairの微調整-----------------------
+            int dtable = new int(); ;
+            int[] dchair = new int[2] {-1, -1};
             for (int i = 0; i < furniture.Length; i++)
             {
-                if(onFurniture[i].gameObject.tag == "TV")
+                if(onFurniture[i].gameObject.tag == "DiningChair")
                 {
-                    int i_tv = new int();
-                    for (int j = 0; j < room.Count; j++)
+                    if(dchair[0] < 0)
                     {
-                        if (onFurniture[i].transform.position.x > room[j].x && onFurniture[i].transform.position.x < room[j].z)
-                        {
-                            if (onFurniture[i].transform.position.z < room[j].y && onFurniture[i].transform.position.z > room[j].w)
-                            {
-                                i_tv = j; break;
-                            }
-                            else if (onFurniture[i].transform.position.z > room[j].y && onFurniture[i].transform.position.z < room[j].w)
-                            {
-                                i_tv = j; break;
-                            }
-                        }
+                        dchair[0] = i;
                     }
-
-                    if(Mathf.Floor(onFurniture[i].transform.eulerAngles.y) == 90)
+                    else
                     {
-                        onFurniture[i].transform.position = new Vector3(room[i_tv].x + onFurniture[i].GetComponent<BoxCollider>().bounds.size.x / 2.0f, onFurniture[i].transform.position.y, onFurniture[i].transform.position.z);
-                    }else if(Mathf.Floor(onFurniture[i].transform.eulerAngles.y) == 180)
-                    {
-                        onFurniture[i].transform.position = new Vector3(onFurniture[i].transform.position.x, onFurniture[i].transform.position.y, room[i_tv].y - onFurniture[i].GetComponent<BoxCollider>().bounds.size.z / 2.0f);
-                    }else if(Mathf.Floor(onFurniture[i].transform.eulerAngles.y) == 270)
-                    {
-                        onFurniture[i].transform.position = new Vector3(room[i_tv].z - onFurniture[i].GetComponent<BoxCollider>().bounds.size.x / 2.0f, onFurniture[i].transform.position.y, onFurniture[i].transform.position.z);
-                    }else if(Mathf.Floor(onFurniture[i].transform.eulerAngles.y) == 0)
-                    {
-                        onFurniture[i].transform.position = new Vector3(onFurniture[i].transform.position.x, onFurniture[i].transform.position.y, room[i_tv].w + onFurniture[i].GetComponent<BoxCollider>().bounds.size.z / 2.0f);
+                        dchair[1] = i;
                     }
                 }
+                if(onFurniture[i].gameObject.tag == "DiningTable")
+                {
+                    dtable = i;
+                }
             }
-
+            for (int i = 0; i < dchair.Length; i++)
+            {
+                onFurniture[dchair[i]].transform.position = new Vector3(onFurniture[dchair[i]].transform.position.x, onFurniture[dchair[i]].transform.position.y, onFurniture[dtable].transform.position.z);
+                if(Mathf.Abs(onFurniture[dtable].transform.eulerAngles.y - onFurniture[dchair[i]].transform.eulerAngles.y) == 0)
+                {
+                    onFurniture[dchair[i]].transform.eulerAngles = new Vector3(0f, 90f, 0f);
+                }
+            }
+            //-------------------------------------------------------------
 
             guiSceneScript.allign = false;
         }
