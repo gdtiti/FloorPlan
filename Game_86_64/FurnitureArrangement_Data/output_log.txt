@@ -1,0 +1,85 @@
+Initialize engine version: 5.3.2f1 (e87ab445ead0)
+GfxDevice: creating device client; threaded=1
+Direct3D:
+    Version:  Direct3D 11.0 [level 11.0]
+    Renderer: NVIDIA GeForce GTX 680 (ID=0x1180)
+    Vendor:   NVIDIA
+    VRAM:     1985 MB
+Begin MonoManager ReloadAssembly
+Platform assembly: Z:\Furniture Project\Unity\FloorPlan\Game_86_64\FurnitureArrangement_Data\Managed\UnityEngine.dll (this message is harmless)
+Loading Z:\Furniture Project\Unity\FloorPlan\Game_86_64\FurnitureArrangement_Data\Managed\UnityEngine.dll into Unity Child Domain
+Platform assembly: Z:\Furniture Project\Unity\FloorPlan\Game_86_64\FurnitureArrangement_Data\Managed\Assembly-CSharp-firstpass.dll (this message is harmless)
+Loading Z:\Furniture Project\Unity\FloorPlan\Game_86_64\FurnitureArrangement_Data\Managed\Assembly-CSharp-firstpass.dll into Unity Child Domain
+Platform assembly: Z:\Furniture Project\Unity\FloorPlan\Game_86_64\FurnitureArrangement_Data\Managed\Assembly-CSharp.dll (this message is harmless)
+Loading Z:\Furniture Project\Unity\FloorPlan\Game_86_64\FurnitureArrangement_Data\Managed\Assembly-CSharp.dll into Unity Child Domain
+Platform assembly: Z:\Furniture Project\Unity\FloorPlan\Game_86_64\FurnitureArrangement_Data\Managed\UnityEngine.UI.dll (this message is harmless)
+Loading Z:\Furniture Project\Unity\FloorPlan\Game_86_64\FurnitureArrangement_Data\Managed\UnityEngine.UI.dll into Unity Child Domain
+Platform assembly: Z:\Furniture Project\Unity\FloorPlan\Game_86_64\FurnitureArrangement_Data\Managed\UnityEngine.Networking.dll (this message is harmless)
+Loading Z:\Furniture Project\Unity\FloorPlan\Game_86_64\FurnitureArrangement_Data\Managed\UnityEngine.Networking.dll into Unity Child Domain
+- Completed reload, in  0.355 seconds
+Platform assembly: Z:\Furniture Project\Unity\FloorPlan\Game_86_64\FurnitureArrangement_Data\Managed\System.Core.dll (this message is harmless)
+Platform assembly: Z:\Furniture Project\Unity\FloorPlan\Game_86_64\FurnitureArrangement_Data\Managed\System.dll (this message is harmless)
+desktop: 1920x1080 60Hz; virtual: 3840x1080 at 0,0
+<RI> Initializing input.
+<RI> Input initialized.
+<RI> Initialized touch support.
+UnloadTime: 16.863117 ms
+Setting up 2 worker threads for Enlighten.
+  Thread -> id: 1fd0 -> priority: 1 
+  Thread -> id: 26ec -> priority: 1 
+5000回
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 37)
+
+-41.83404
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 37)
+
+5000回
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 37)
+
+-49.23494
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 37)
+
+5000回
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 37)
+
+-49.46689
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 37)
+
+5000回
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 37)
+
+-55.56145
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 37)
+
+5000回
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 37)
+
+-57.91101
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 37)
+
+5000回
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 37)
+
+-54.31139
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 37)
+
+5000回
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 37)
+
+-59.28874
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 37)
+
