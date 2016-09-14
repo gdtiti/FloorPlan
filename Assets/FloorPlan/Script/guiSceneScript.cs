@@ -10,6 +10,7 @@ public class guiSceneScript : MonoBehaviour {
     public static int cameraCount = 0;          //Camera変更のため
     public static bool allign = false;
     public static bool doorFlag = false;
+    public static bool windowFlag = false;
 
     void Start()
     {
@@ -42,11 +43,22 @@ public class guiSceneScript : MonoBehaviour {
         suggestion = false;
         FloorPlan.floorFlag = false;
         doorFlag = false;
+        windowFlag = false;
     }
 
     public void OnDoorButtonClick()
     {
         doorFlag = true;
+        lightFlag = false;
+        suggestion = false;
+        FloorPlan.floorFlag = false;
+        windowFlag = false;
+    }
+
+    public void OnWindowButtonClick()
+    {
+        windowFlag = true;
+        doorFlag = false;
         lightFlag = false;
         suggestion = false;
         FloorPlan.floorFlag = false;
@@ -59,6 +71,7 @@ public class guiSceneScript : MonoBehaviour {
         suggestion = false;
         FloorPlan.floorFlag = false;
         doorFlag = false;
+        windowFlag = false;
     }
 
     public void OnSuggestionButtonClick()
@@ -68,6 +81,7 @@ public class guiSceneScript : MonoBehaviour {
         lightFlag = false;
         FloorPlan.floorFlag = false;
         doorFlag = false;
+        windowFlag = false;
     }
 
     //カメラ変更ボタンのクリック回数を調べる．
@@ -80,5 +94,7 @@ public class guiSceneScript : MonoBehaviour {
     {
         allign = true;
     }
+
+
  
 }
