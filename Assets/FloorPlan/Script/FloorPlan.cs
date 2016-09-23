@@ -3,8 +3,13 @@ using System.Collections;
 using System.IO;
 using System.Collections.Generic;
 
+public class config
+{
+    private int fnumber;
+}
+
+
 public class FloorPlan : MonoBehaviour {
-    public GameObject[] furniture;              //家具の読み込み
     private GameObject[] onFurniture;           //置いた家具
     private GameObject[] tempFurniture;         //swap用の家具のゲームオブジェクト
     private GameObject[] beforeFurniture;       //遷移前の置いた家具の位置を保存
@@ -21,13 +26,14 @@ public class FloorPlan : MonoBehaviour {
     private List<Vector3> cubePoint;            //cubeの座標のリスト
     public static bool floorFlag;               //最初にFloor設定するためのフラグ
     private List<Vector4> room;                 //レイアウトする部屋の両端の座標
-    public Texture twall,tfloor;                //床と壁のテクスチャ
     private float mincost;                      //mincost
 
-    private int floorFixing;
+    private int floorFixing;                    //部屋固定するときに使う
 
-    public GameObject door;
-    public GameObject window;
+    GameObject lastdoor,door;
+    GameObject lastwindow, window;
+
+    Texture twall, tfloor;
 
     void createFloor()
     {
@@ -35,7 +41,7 @@ public class FloorPlan : MonoBehaviour {
         position.z = mainCamera.GetComponent<Transform>().position.y;
         screenToWorldPointPosition = mainCamera.ScreenToWorldPoint(position);
         sphere.transform.position = screenToWorldPointPosition;
-        float wheight = 4.7f;
+        float wheight = FurnitureInfo.wall_height;
         if (Input.GetMouseButtonDown(0))
         {
             if (cubeList.Count == 2)
@@ -53,7 +59,7 @@ public class FloorPlan : MonoBehaviour {
                 //ceiling
                 ceiling.GetComponent<Renderer>().material.color = new Color(255f/255f, 255f/255f, 255f/255f);
                 ceiling.transform.position = floor.transform.position;
-                ceiling.transform.position += new Vector3(0.0f, 2.8f, 0.0f);
+                ceiling.transform.position += new Vector3(0.0f, wheight - 0.01f, 0.0f);
                 ceiling.transform.eulerAngles = new Vector3(270f, 0f, 0f);
                 ceiling.transform.localScale = floor.transform.localScale;
                 ceiling.GetComponent<Renderer>().material.mainTexture = twall;
@@ -71,7 +77,7 @@ public class FloorPlan : MonoBehaviour {
 
                 //top
                 wall1[0].transform.position = new Vector3((cubeList[0].transform.position.x + cubeList[1].transform.position.x) / 2.0f,
-                                                    0.5f, cubeList[0].transform.position.z - margin);
+                                                    0.5f*wheight, cubeList[0].transform.position.z - margin);
                 bwall1[0].transform.position = wall1[0].transform.position;
                 wall1[0].transform.eulerAngles = new Vector3(0, 0, 0);
                 bwall1[0].transform.eulerAngles = new Vector3(0, 180f, 0);
@@ -79,7 +85,7 @@ public class FloorPlan : MonoBehaviour {
                 bwall1[0].transform.localScale = wall1[0].transform.localScale;
 
                 //right
-                wall1[1].transform.position = new Vector3(cubeList[1].transform.position.x-margin, 0.5f, 
+                wall1[1].transform.position = new Vector3(cubeList[1].transform.position.x-margin, 0.5f * wheight, 
                     (cubeList[0].transform.position.z+cubeList[1].transform.position.z)/2.0f);
                 bwall1[1].transform.position = wall1[1].transform.position;
                 wall1[1].transform.eulerAngles = new Vector3(0, 90f, 0);
@@ -89,7 +95,7 @@ public class FloorPlan : MonoBehaviour {
 
                 //bottom
                 wall1[2].transform.position = new Vector3((cubeList[0].transform.position.x + cubeList[1].transform.position.x) / 2.0f,
-                                                    0.5f, cubeList[1].transform.position.z+margin);
+                                                    0.5f * wheight, cubeList[1].transform.position.z+margin);
                 bwall1[2].transform.position = wall1[2].transform.position;
                 wall1[2].transform.eulerAngles = new Vector3(0, 0, 0);
                 bwall1[2].transform.eulerAngles = new Vector3(0, 180f, 0);
@@ -97,7 +103,7 @@ public class FloorPlan : MonoBehaviour {
                 bwall1[2].transform.localScale = wall1[2].transform.localScale;
 
                 //left
-                wall1[3].transform.position = new Vector3(cubeList[0].transform.position.x+margin, 0.5f,
+                wall1[3].transform.position = new Vector3(cubeList[0].transform.position.x+margin, 0.5f * wheight,
                     (cubeList[0].transform.position.z+cubeList[1].transform.position.z)/2.0f);
                 bwall1[3].transform.position = wall1[3].transform.position;
                 wall1[3].transform.eulerAngles = new Vector3(0, 90f, 0);
@@ -171,7 +177,7 @@ public class FloorPlan : MonoBehaviour {
         }
     }
 
-    GameObject lastdoor;
+
     private bool once2 = false;
     //ドアの配置
     void setDoorPosition()
@@ -235,7 +241,7 @@ public class FloorPlan : MonoBehaviour {
 
     }
 
-    GameObject lastwindow;
+   
     //ドアの配置
     void setWindowPosition()
     {
@@ -279,8 +285,6 @@ public class FloorPlan : MonoBehaviour {
 
     }
 
-
-
     private bool once = false;
     void initFurniture()
     {
@@ -312,9 +316,10 @@ public class FloorPlan : MonoBehaviour {
         }
 
         if (!once)
-        { 
-            for (int i = 0; i < furniture.Length; i++)
-            {
+        {
+            //for (int i = 0; i < FurnitureInfo.numFurniture; i++)
+            for(int i = 0; i < FurnitureInfo.numFurniture; i++)
+            { 
                 initoneFurniturePosition(i);
             }
             roomTextSave(ref room);
@@ -326,7 +331,14 @@ public class FloorPlan : MonoBehaviour {
     {
         Collider[] col;
         if (onFurniture.Length != 0 && onFurniture[i] != null) Destroy(onFurniture[i]);
-        onFurniture[i] = Instantiate(this.furniture[i]);
+        //onFurniture[i] = Instantiate(this.furniture[i]);
+
+        //if (onFurniture.Count != 0 && onFurniture[i] != null) Destroy(onFurniture[i]);
+        //GameObject prefab = (GameObject)Resources.Load("Prefabs/Armchair");
+        GameObject prefab = (GameObject)Resources.Load(FurnitureInfo.furniturePath[i]);
+        onFurniture[i] = Instantiate(prefab);
+        //onFurniture.Add(Instantiate(prefab));
+
         do
         {
             int roomID = Random.Range(0, room.Count);
@@ -346,7 +358,7 @@ public class FloorPlan : MonoBehaviour {
     {
         //前の状態を保存
         beforeFurniture = onFurniture;
-        //for (int i = 0; i < furniture.Length; i++)
+        //for (int i = 0; i < FurnitureInfo.numFurniture; i++)
         //{
         //    beforeTrans[i] = onFurniture[i].transform.position;
         //    beforeRotation[i] = onFurniture[i].transform.position;
@@ -365,7 +377,7 @@ public class FloorPlan : MonoBehaviour {
         //GaussianMove
         if (move == 0)
         {
-            int fid = Random.Range(0, furniture.Length);
+            int fid = Random.Range(0, FurnitureInfo.numFurniture);
             //家具がどの部屋にあるのか調べるルーチン
             int rid = -9999;
             for (int i = 0; i < room.Count; i++)
@@ -391,7 +403,7 @@ public class FloorPlan : MonoBehaviour {
             float mu = 0.0f, sigma = 0.1f;
             int limit = 0;
             tempFurniture = onFurniture;
-            //for (int i = 0; i < furniture.Length; i++)
+            //for (int i = 0; i < FurnitureInfo.numFurniture; i++)
             //{
             //    tempTrans[i] = new Vector3(onFurniture[i].transform.position.x, onFurniture[i].transform.position.y, onFurniture[i].transform.position.z);
             //}
@@ -413,7 +425,7 @@ public class FloorPlan : MonoBehaviour {
         //RotationGaussian
         else if (move == 1)
         {
-            int fid = Random.Range(0, furniture.Length);
+            int fid = Random.Range(0, FurnitureInfo.numFurniture);
             Collider[] col1; Vector3 rdiff;
             float mu = 0.0f, sigma = 10.0f;
             int limit = 0;
@@ -447,11 +459,11 @@ public class FloorPlan : MonoBehaviour {
                     onefID = twofID = 0;
                     break;
                 }
-                onefID = Random.Range(0, furniture.Length);
+                onefID = Random.Range(0, FurnitureInfo.numFurniture);
                 twofID = onefID;
                 while (twofID == onefID)
                 {
-                    twofID = Random.Range(0, furniture.Length);
+                    twofID = Random.Range(0, FurnitureInfo.numFurniture);
                 }
                 ttemp = tempFurniture[onefID].transform.position;
                 tempFurniture[onefID].transform.position = tempFurniture[twofID].transform.position;
@@ -478,7 +490,7 @@ public class FloorPlan : MonoBehaviour {
         {
             //前の状態に戻す．
             //onFurniture = beforeFurniture;
-            for (int i = 0; i < furniture.Length; i++)
+            for (int i = 0; i < FurnitureInfo.numFurniture; i++)
             {
                 onFurniture[i].transform.position = beforeTrans[i];
                 onFurniture[i].transform.eulerAngles = beforeRotation[i];
@@ -500,7 +512,7 @@ public class FloorPlan : MonoBehaviour {
         {
             mincost = bcost;
 
-            for (int i = 0; i < furniture.Length; i++)
+            for (int i = 0; i < FurnitureInfo.numFurniture; i++)
             {
                 mintrans[i] = new Vector3(onFurniture[i].transform.position.x, onFurniture[i].transform.position.y, onFurniture[i].transform.position.z);
                 minrotation[i] = new Vector3(onFurniture[i].transform.eulerAngles.x, onFurniture[i].transform.eulerAngles.y, onFurniture[i].transform.eulerAngles.z);
@@ -516,7 +528,7 @@ public class FloorPlan : MonoBehaviour {
     {
         //前の状態を保存
         beforeFurniture = onFurniture;
-        //for (int i = 0; i < furniture.Length; i++)
+        //for (int i = 0; i < FurnitureInfo.numFurniture; i++)
         //{
         //    beforeTrans[i] = onFurniture[i].transform.position;
         //    beforeRotation[i] = onFurniture[i].transform.position;
@@ -530,7 +542,7 @@ public class FloorPlan : MonoBehaviour {
         List<int> inroom;
         inroom = new List<int>();
 
-        for(int i = 0; i < furniture.Length; i++)
+        for(int i = 0; i < FurnitureInfo.numFurniture; i++)
         {
            if (onFurniture[i].transform.position.x > room[roomNo].x && onFurniture[i].transform.position.x < room[roomNo].z)
            {
@@ -668,7 +680,7 @@ public class FloorPlan : MonoBehaviour {
         {
             //前の状態に戻す．
             onFurniture = beforeFurniture;
-            //for (int i = 0; i < furniture.Length; i++)
+            //for (int i = 0; i < FurnitureInfo.numFurniture; i++)
             //{
             //    onFurniture[i].transform.position = beforeTrans[i];
             //    onFurniture[i].transform.eulerAngles = beforeRotation[i];
@@ -689,7 +701,7 @@ public class FloorPlan : MonoBehaviour {
         {
             mincost = bcost;
 
-            for (int i = 0; i < furniture.Length; i++)
+            for (int i = 0; i < FurnitureInfo.numFurniture; i++)
             {
                 mintrans[i] = new Vector3(onFurniture[i].transform.position.x, onFurniture[i].transform.position.y, onFurniture[i].transform.position.z);
                 minrotation[i] = new Vector3(onFurniture[i].transform.eulerAngles.x, onFurniture[i].transform.eulerAngles.y, onFurniture[i].transform.eulerAngles.z);
@@ -704,7 +716,7 @@ public class FloorPlan : MonoBehaviour {
     {
         //前の状態を保存
         beforeFurniture = onFurniture;
-        //for (int i = 0; i < furniture.Length; i++)
+        //for (int i = 0; i < FurnitureInfo.numFurniture; i++)
         //{
         //    beforeTrans[i] = new Vector3(onFurniture[i].transform.position.x, onFurniture[i].transform.position.y, onFurniture[i].transform.position.z);
         //    beforeRotation[i] = new Vector3(onFurniture[i].transform.position.x, onFurniture[i].transform.position.y, onFurniture[i].transform.position.z);
@@ -719,11 +731,20 @@ public class FloorPlan : MonoBehaviour {
         p0 = densityFunction(bcost);
 
         //3のとき部屋内，4のとき部屋間移動あり
-        int move = Random.Range(0, 4);
+        int move;
+        if (room.Count > 1)
+        {
+            move = Random.Range(0, 4);
+        }
+        else
+        {
+            move = Random.Range(0, 3);
+        }
+
         //GaussianMove
         if (move == 0)
         {
-            int fid = Random.Range(0, furniture.Length);
+            int fid = Random.Range(0, FurnitureInfo.numFurniture);
             //家具がどの部屋にあるのか調べるルーチン
             int rid = -9999;
             for (int i = 0; i < room.Count; i++)
@@ -767,7 +788,7 @@ public class FloorPlan : MonoBehaviour {
         //RotationGaussian
         else if (move == 1)
         {
-            int fid = Random.Range(0, furniture.Length);
+            int fid = Random.Range(0, FurnitureInfo.numFurniture);
             Collider[] col1; Vector3 rdiff;
             float mu = 0.0f, sigma = 10.0f;
             int limit = 0;
@@ -794,7 +815,7 @@ public class FloorPlan : MonoBehaviour {
             Collider[] col1, col2;
             int onefID, twofID, limit = 0;
             tempFurniture = onFurniture;
-            for (int i = 0; i < furniture.Length; i++)
+            for (int i = 0; i < FurnitureInfo.numFurniture; i++)
             {
                 tempTrans[i] = new Vector3(onFurniture[i].transform.position.x, onFurniture[i].transform.position.y, onFurniture[i].transform.position.z);
             }
@@ -804,7 +825,7 @@ public class FloorPlan : MonoBehaviour {
             List<int> inroom;
             inroom = new List<int>();
 
-            for (int i = 0; i < furniture.Length; i++)
+            for (int i = 0; i < FurnitureInfo.numFurniture; i++)
             {
                 if (onFurniture[i].transform.position.x > room[roomID].x && onFurniture[i].transform.position.x < room[roomID].z)
                 {
@@ -842,7 +863,7 @@ public class FloorPlan : MonoBehaviour {
                     col1 = Physics.OverlapBox(box1.bounds.center, box1.bounds.size / 2.0f, tempFurniture[onefID].transform.rotation);
                     col2 = Physics.OverlapBox(box2.bounds.center, box2.bounds.size / 2.0f, tempFurniture[twofID].transform.rotation);
                     tempFurniture = onFurniture;
-                    //for (int i = 0; i < furniture.Length; i++)
+                    //for (int i = 0; i < FurnitureInfo.numFurniture; i++)
                     //{
                     //    tempFurniture[i].transform.position = new Vector3(tempTrans[i].x, tempTrans[i].y, tempTrans[i].z);
                     //}
@@ -855,7 +876,7 @@ public class FloorPlan : MonoBehaviour {
                 }
                 else
                 {
-                    for (int i = 0; i < furniture.Length; i++)
+                    for (int i = 0; i < FurnitureInfo.numFurniture; i++)
                     {
                         onFurniture[i].transform.position = new Vector3(tempTrans[i].x, tempTrans[i].y, tempTrans[i].z);
                     }
@@ -866,7 +887,7 @@ public class FloorPlan : MonoBehaviour {
         //1個一気に移動
         else if (move == 3)
         {
-            int fid = Random.Range(0, furniture.Length);
+            int fid = Random.Range(0, FurnitureInfo.numFurniture);
             //家具がどの部屋にあるのか調べるルーチン
             int rid = new int();
             for (int i = 0; i < room.Count; i++)
@@ -923,7 +944,7 @@ public class FloorPlan : MonoBehaviour {
         {
             //前の状態に戻す．
             onFurniture = beforeFurniture;
-            //for (int i = 0; i < furniture.Length; i++)
+            //for (int i = 0; i < FurnitureInfo.numFurniture; i++)
             //{
             //    onFurniture[i].transform.position = new Vector3(beforeTrans[i].x, beforeTrans[i].y, beforeTrans[i].z);
             //    onFurniture[i].transform.eulerAngles = new Vector3(beforeRotation[i].x, beforeTrans[i].y, beforeTrans[i].z);
@@ -945,7 +966,7 @@ public class FloorPlan : MonoBehaviour {
         {
             mincost = bcost;
 
-            for (int i = 0; i < furniture.Length; i++)
+            for (int i = 0; i < FurnitureInfo.numFurniture; i++)
             {
                 mintrans[i] = new Vector3(onFurniture[i].transform.position.x, onFurniture[i].transform.position.y, onFurniture[i].transform.position.z);
                 minrotation[i] = new Vector3(onFurniture[i].transform.eulerAngles.x, onFurniture[i].transform.eulerAngles.y, onFurniture[i].transform.eulerAngles.z);
@@ -968,7 +989,7 @@ public class FloorPlan : MonoBehaviour {
         List<int> inroom;
         inroom = new List<int>();
 
-        for(int i = 0; i < furniture.Length; i++)
+        for(int i = 0; i < FurnitureInfo.numFurniture; i++)
         {
             if (onFurniture[i].transform.position.x > room[roomID].x && onFurniture[i].transform.position.x < room[roomID].z)
             {
@@ -1046,8 +1067,51 @@ public class FloorPlan : MonoBehaviour {
         {
             mpd += 1000.0f;
         }
-
     }
+
+
+    void calcPairRelation_file(ref float mpd, ref float mpa, int roomID)
+    {
+        float p = 0, distance = 0, mind = 0, maxd = 0, cosfg = 0;
+        mpd = 0; mpa = 0;
+        List<int> inroom;
+        inroom = new List<int>();
+
+        for(int i = 0; i < FurnitureInfo.numFurniture; i++)
+        {
+            if (onFurniture[i].transform.position.x > room[roomID].x && onFurniture[i].transform.position.x < room[roomID].z)
+            {
+                if(onFurniture[i].transform.position.z < room[roomID].y && onFurniture[i].transform.position.z > room[roomID].w)
+                {
+                    inroom.Add(i);
+                }else if(onFurniture[i].transform.position.z > room[roomID].y && onFurniture[i].transform.position.z < room[roomID].w)
+                {
+                    inroom.Add(i);
+                }
+            }
+        }
+
+        if (inroom.Count != 0)
+        {
+            for (int i = 0; i < inroom.Count; i++)
+            {
+                for (int j = i + 1; j < inroom.Count; j++)
+                {
+                    Vector3 d = onFurniture[inroom[i]].transform.position - onFurniture[inroom[j]].transform.position;
+                    distance = d.magnitude;
+                    p = FurnitureInfo.pfg[inroom[i]][inroom[j]];
+                    mind = FurnitureInfo.mfg[inroom[i]][inroom[j]];
+                    maxd = FurnitureInfo.Mfg[inroom[i]][inroom[j]];
+                    mpd -= p * t(distance, mind, maxd, 2);
+                }
+            }
+        }
+        else
+        {
+            mpd += 1000.0f;
+        }
+    }
+
 
     //会話をするための評価関数(部屋別)
 #if false
@@ -1058,7 +1122,7 @@ public class FloorPlan : MonoBehaviour {
         List<int> inroom;
         inroom = new List<int>();
 
-        for(int i = 0; i < furniture.Length; i++)
+        for(int i = 0; i < FurnitureInfo.numFurniture; i++)
         {
             if (onFurniture[i].transform.position.x > room[roomID].x && onFurniture[i].transform.position.x < room[roomID].z)
             {
@@ -1171,7 +1235,7 @@ public class FloorPlan : MonoBehaviour {
         List<int> inroom;
         inroom = new List<int>();
 
-        for(int i = 0; i < furniture.Length; i++)
+        for(int i = 0; i < FurnitureInfo.numFurniture; i++)
         {
             if (onFurniture[i].transform.position.x > room[roomID].x && onFurniture[i].transform.position.x < room[roomID].z)
             {
@@ -1271,9 +1335,84 @@ public class FloorPlan : MonoBehaviour {
         //}
     }
 
+    void calcConversation_v2_file(ref float mcd, ref float mca, int roomID)
+    {
+        float q = 0.0f, cosfg = 0.0f, cosgf = 0.0f, distance = 0.0f, maxd = 0.0f, mind = 0.0f;
+        mcd = 0.0f; mca = 0.0f;
+        List<int> inroom;
+        inroom = new List<int>();
+
+        for(int i = 0; i < FurnitureInfo.numFurniture; i++)
+        {
+            if (onFurniture[i].transform.position.x > room[roomID].x && onFurniture[i].transform.position.x < room[roomID].z)
+            {
+                if(onFurniture[i].transform.position.z < room[roomID].y && onFurniture[i].transform.position.z > room[roomID].w)
+                {
+                    inroom.Add(i);
+                }else if(onFurniture[i].transform.position.z > room[roomID].y && onFurniture[i].transform.position.z < room[roomID].w)
+                {
+                    inroom.Add(i);
+                }
+            }
+        }
+
+        int coffeeCount = 0, armchairCount = 0, sofaCount = 0;
+        int diningCount = 0, tvCount = 0;
+        if (inroom.Count != 0)
+        {
+            for (int i = 0; i < inroom.Count; i++)
+            {
+                if(onFurniture[inroom[i]].gameObject.tag == "CoffeeTable"){ coffeeCount++; }
+                if(onFurniture[inroom[i]].gameObject.tag == "Armchair"){ armchairCount++; }
+                if(onFurniture[inroom[i]].gameObject.tag == "Sofa"){ sofaCount++; }
+                if(onFurniture[inroom[i]].gameObject.tag == "DiningSet") { diningCount++; }
+                if(onFurniture[inroom[i]].gameObject.tag == "TV") { tvCount++; }
+            }
+        }
+
+        bool livingSet = false, diningSet = false, tvSet = false; 
+        if(coffeeCount == 1 && armchairCount == 2 && sofaCount == 1){ livingSet = true; }
+        if(diningCount == 1) { diningSet = true; }
+        if(tvCount == 1) { tvSet = true; }
+
+        if (livingSet)
+        {
+            for (int i = 0; i < inroom.Count; i++)
+            {
+                for (int j = i + 1; j < inroom.Count; j++) 
+                {
+                    Vector3 d = onFurniture[inroom[j]].transform.position - onFurniture[inroom[i]].transform.position;
+                    distance = d.magnitude;
+                    d.x /= distance; d.y = 0.0f; d.z /= distance;
+                    float thetaf = onFurniture[inroom[i]].transform.eulerAngles.y;
+                    float thetag = onFurniture[inroom[j]].transform.eulerAngles.y;
+
+                    Vector3 f = new Vector3(Mathf.Sin(thetaf * Mathf.PI / 180.0f), 0.0f, Mathf.Cos(thetaf * Mathf.PI / 180.0f));
+                    Vector3 g = new Vector3(Mathf.Sin(thetag * Mathf.PI / 180.0f), 0.0f, Mathf.Cos(thetag * Mathf.PI / 180.0f));
+
+                    cosfg = Vector3.Dot(f, d); cosgf = Vector3.Dot(g, -d);
+
+                    q = FurnitureInfo.qfg[inroom[i]][inroom[j]];
+                    mind = FurnitureInfo.mc[inroom[i]][inroom[j]];
+                    maxd = FurnitureInfo.Mc[inroom[i]][inroom[j]];
+
+                    mcd -= q * t(distance, mind, maxd, 2);
+                    mca -= q * (cosfg + 1) * (cosgf + 1);
+                }
+            }
+        }
+        ////もし各部屋に家具セットがなければコストが大きくなるってしてみる．
+        //else
+        //{
+        //    mcd += 100.0f;
+        //    mca += 100.0f;
+        //}
+    }
+
 
 
     //整列させる．mfaのグループごとまだできてない．mwaもまだできてない．
+#if false
     void calcAlignment(ref float mfa, ref float mwa, int roomID)
     {
         mfa = 0.0f; mwa = 0.0f;
@@ -1281,7 +1420,7 @@ public class FloorPlan : MonoBehaviour {
         List<int> inroom;
         inroom = new List<int>();
 
-        for(int i = 0; i < furniture.Length; i++)
+        for(int i = 0; i < FurnitureInfo.numFurniture; i++)
         {
             if (onFurniture[i].transform.position.x > room[roomID].x && onFurniture[i].transform.position.x < room[roomID].z)
             {
@@ -1319,6 +1458,7 @@ public class FloorPlan : MonoBehaviour {
         }
 
     }
+#endif
 
     //整列させる．mfaのグループごとまだできてない．mwaもまだできてない．(家具セット考慮) 
     void calcAlignment_v2(ref float mfa, ref float mwa, int roomID)
@@ -1328,7 +1468,7 @@ public class FloorPlan : MonoBehaviour {
         List<int> inroom;
         inroom = new List<int>();
 
-        for(int i = 0; i < furniture.Length; i++)
+        for(int i = 0; i < FurnitureInfo.numFurniture; i++)
         {
             if (onFurniture[i].transform.position.x > room[roomID].x && onFurniture[i].transform.position.x < room[roomID].z)
             {
@@ -1417,7 +1557,7 @@ public class FloorPlan : MonoBehaviour {
         List<int> inroom;
         inroom = new List<int>();
 
-        for(int i = 0; i < furniture.Length; i++)
+        for(int i = 0; i < FurnitureInfo.numFurniture; i++)
         {
             if (onFurniture[i].transform.position.x > room[roomID].x && onFurniture[i].transform.position.x < room[roomID].z)
             {
@@ -1442,11 +1582,11 @@ public class FloorPlan : MonoBehaviour {
             centroid /= sumArea;
             mvb += (centroid - rCenter).magnitude;
         }
-        //部屋に家具が何もないとき．．．コストをめちゃめちゃ上げるか？
-        else
-        {
-            mvb += 100.0f;
-        }
+        ////部屋に家具が何もないとき．．．コストをめちゃめちゃ上げるか？
+        //else
+        //{
+        //    mvb += 100.0f;
+        //}
 
 
 
@@ -1462,7 +1602,7 @@ public class FloorPlan : MonoBehaviour {
         List<int> inroom;
         inroom = new List<int>();
 
-        for (int i = 0; i < furniture.Length; i++)
+        for (int i = 0; i < FurnitureInfo.numFurniture; i++)
         {
             if (onFurniture[i].transform.position.x > room[roomID].x && onFurniture[i].transform.position.x < room[roomID].z)
             {
@@ -1500,7 +1640,7 @@ public class FloorPlan : MonoBehaviour {
     }
 #endif
 
-    //中心を向くようにする
+    //リビングセットの場合はコーヒーテーブルに向くようにする．テレビはコーヒーテーブルかダイニングに向くようにする
     void calcEmphasis_v2(ref float mef,ref float msy,int roomID)
     {
         mef = 0.0f; msy = 0.0f;
@@ -1509,7 +1649,7 @@ public class FloorPlan : MonoBehaviour {
         List<int> inroom;
         inroom = new List<int>();
 
-        for (int i = 0; i < furniture.Length; i++)
+        for (int i = 0; i < FurnitureInfo.numFurniture; i++)
         {
             if (onFurniture[i].transform.position.x > room[roomID].x && onFurniture[i].transform.position.x < room[roomID].z)
             {
@@ -1524,26 +1664,67 @@ public class FloorPlan : MonoBehaviour {
             }
         }
 
-        if (inroom.Count != 0)
+        int coffeeCount = 0, armchairCount = 0, sofaCount = 0;
+        int diningCount = 0, tvcount = 0;
+        if(inroom.Count != 0)
+        {
+            for(int i = 0; i < inroom.Count; i++)
+            {
+                if (onFurniture[inroom[i]].gameObject.tag == "CoffeeTable") { coffeeCount++; }
+                if (onFurniture[inroom[i]].gameObject.tag == "Armchair") { armchairCount++; }
+                if (onFurniture[inroom[i]].gameObject.tag == "Sofa") { sofaCount++; }
+                if (onFurniture[inroom[i]].gameObject.tag == "DiningSet") { diningCount++; }
+                if (onFurniture[inroom[i]].gameObject.tag == "TV") { tvcount++; }
+            }
+        }
+
+        bool livingSet = false, diningSet = false, tvSet = false;
+        if (coffeeCount == 1 && armchairCount == 2 && sofaCount == 1) { livingSet = true; }
+        if (diningCount == 1) { diningSet = true; }
+        if (tvcount == 1) { tvSet = true; }
+
+        if (livingSet)
         {
             for (int i = 0; i < inroom.Count; i++)
             {
-                if (onFurniture[inroom[i]].gameObject.tag == "Armchair" || onFurniture[inroom[i]].gameObject.tag == "Sofa"
-                    || onFurniture[inroom[i]].gameObject.tag == "DiningChair" || onFurniture[inroom[i]].gameObject.tag == "TV")
+                if (onFurniture[inroom[i]].gameObject.tag == "CoffeeTable")
                 {
-                    float theta = onFurniture[inroom[i]].transform.eulerAngles.y;
-                    d = new Vector3(Mathf.Sin(theta * Mathf.PI / 180.0f), 0.0f, Mathf.Cos(theta * Mathf.PI / 180.0f));
-                    dc = rcenter - onFurniture[inroom[i]].transform.position;
-                    dc /= dc.magnitude;
-                    mef -= Vector3.Dot(d, dc);
+                    for (int j = 0; j < inroom.Count; j++)
+                    {
+                        if(onFurniture[inroom[j]].gameObject.tag == "Armchair" || onFurniture[inroom[j]].gameObject.tag == "Sofa")
+                        {
+                            float theta = onFurniture[inroom[j]].transform.eulerAngles.y;
+                            d = new Vector3(Mathf.Sin(theta * Mathf.PI / 180.0f), 0.0f, Mathf.Cos(theta * Mathf.PI / 180.0f));
+                            dc = onFurniture[inroom[i]].transform.position - onFurniture[inroom[j]].transform.position;
+                            dc /= dc.magnitude;
+                            mef -= Vector3.Dot(d, dc);
+                        }
+                    }
+                    break;
                 }
+
             }
         }
-        else
+
+        if (diningSet)
         {
-            mef += 1000.0f;
+
         }
 
+        if (tvSet)
+        {
+            //for (int i = 0; i < inroom.Count; i++)
+            //{
+            //    if(onFurniture[inroom[i]].gameObject.tag == "TV")
+            //    {
+            //        float theta = onFurniture[inroom[i]].transform.eulerAngles.y;
+            //        d = new Vector3(Mathf.Sin(theta * Mathf.PI / 180.0f), 0.0f, Mathf.Cos(theta * Mathf.PI / 180.0f));
+            //        dc = rcenter - onFurniture[inroom[i]].transform.position;
+            //        dc /= dc.magnitude;
+            //        mef -= Vector3.Dot(d, dc);
+            //    }
+            //}
+        }
     }
 
 
@@ -1556,7 +1737,7 @@ public class FloorPlan : MonoBehaviour {
         List<int> inroom;
         inroom = new List<int>();
 
-        for (int i = 0; i < furniture.Length; i++)
+        for (int i = 0; i < FurnitureInfo.numFurniture; i++)
         {
             if (onFurniture[i].transform.position.x > room[roomID].x && onFurniture[i].transform.position.x < room[roomID].z)
             {
@@ -1584,11 +1765,11 @@ public class FloorPlan : MonoBehaviour {
             mci -= t(cfree, 0.8f, 0.9f, 3);
             //mci -= t(cfree, 0.7f, 0.8f, 2);
         }
-        //部屋に何もないとき
-        else
-        {
-            mci += 1000.0f;
-        }
+        ////部屋に何もないとき
+        //else
+        //{
+        //    mci += 1000.0f;
+        //}
         
 
     }
@@ -1600,7 +1781,7 @@ public class FloorPlan : MonoBehaviour {
         List<int> inroom;
         inroom = new List<int>();
 
-        for (int i = 0; i < furniture.Length; i++)
+        for (int i = 0; i < FurnitureInfo.numFurniture; i++)
         {
             if (onFurniture[i].transform.position.x > room[roomID].x && onFurniture[i].transform.position.x < room[roomID].z)
             {
@@ -1678,32 +1859,33 @@ public class FloorPlan : MonoBehaviour {
     {
         float cost = 0;
 
-        float mci = 0, wci = 2.0f;                          //Circulation
-        float mpd = 0, mpa = 0, wpd = 1.0f, wpa = 1.0f;     //Pairwise Relationship
-        float mcd = 0, mca = 0, wcd = 1.0f, wca = 1.0f;     //Conversation
-        float mvb = 0, wvb = 1.5f;                          //Balance 
-        float mfa = 0, mwa = 0, wfa = 2.5f, wwa = 2.5f;     //Alignment 
-        float mef = 0, msy = 0, wef = 4.0f, wsy = 1.0f;     //Emphasis
+        float mci = 0, wci = FurnitureInfo.wci;                          //Circulation
+        float mpd = 0, mpa = 0, wpd = FurnitureInfo.wpd, wpa = FurnitureInfo.wpa;     //Pairwise Relationship
+        float mcd = 0, mca = 0, wcd = FurnitureInfo.wcd, wca = FurnitureInfo.wca;     //Conversation
+        float mvb = 0, wvb = FurnitureInfo.wvb;                          //Balance 
+        float mfa = 0, mwa = 0, wfa = FurnitureInfo.wfa, wwa = FurnitureInfo.wwa;     //Alignment 
+        float mef = 0, msy = 0, wef = FurnitureInfo.wef, wsy = FurnitureInfo.wsy;     //Emphasis
         float mrf = 0, wrf = 1.0f;                          //Recommended
 
        
         mpd = 0.0f; mpa = 0.0f; mcd = 0.0f; mca = 0.0f; mvb = 0.0f; mfa = 0.0f; mwa = 0.0f;
         //calcPairRelation(ref mpd, ref mpa, roomNo);
+        calcPairRelation_file(ref mpd, ref mpa, roomNo);
         //calcConversation(ref mcd, ref mca, roomNo);
-        //calcVisualBalance(ref mvb, roomNo);
+        calcVisualBalance(ref mvb, roomNo);
         //calcAlignment(ref mfa, ref mwa, roomNo);
-        //calcCirculation(ref mci, roomNo);
+        calcCirculation(ref mci, roomNo);
         //calcEmphasis(ref mef, ref msy, roomNo);
         //calcRecommendFurniture(ref mrf, roomNo);
 
         //家具セットを考慮した評価関数(作り直し)
         //calcConversation_v2(ref mcd, ref mca, roomNo);
+        calcConversation_v2_file(ref mcd, ref mca, roomNo);
         calcAlignment_v2(ref mfa, ref mwa, roomNo);
         calcEmphasis_v2(ref mef, ref msy, roomNo);
 
-        //cost += wci * mci / 1.0f + wpd * mpd / 20.0f + wcd * mcd / 14.0f + wca * mca / 45.0f + wvb * mvb / 5.0f + wfa * mfa / 20.0f + wwa * mwa / 8.0f + wef * mef / 3.0f;
+        cost += wci * mci / 3.0f + wpd * mpd / 20.0f + wcd * mcd / 14.0f + wca * mca / 45.0f + wvb * mvb + wfa * mfa / 20.0f + wwa * mwa / 8.0f + wef * mef / 7.0f;
         //cost += 5.0f * mrf;
-        cost += mfa;
 
         return cost;
     }
@@ -1761,6 +1943,7 @@ public class FloorPlan : MonoBehaviour {
 
 
         Random.seed = 0;
+        //Random.seed = 100;
         //floorPlanの設定用のflag
         floorFlag = true;
         //マウスポインタの赤い球
@@ -1773,20 +1956,34 @@ public class FloorPlan : MonoBehaviour {
         cubeList = new List<GameObject>();
         cubePoint = new List<Vector3>();
         room = new List<Vector4>();
-        onFurniture = new GameObject[furniture.Length];
-        tempFurniture = new GameObject[furniture.Length];
-        mintrans = new Vector3[furniture.Length];
-        minrotation = new Vector3[furniture.Length];
-        beforeTrans = new Vector3[furniture.Length];
-        beforeRotation = new Vector3[furniture.Length];
-        tempTrans = new Vector3[furniture.Length];
-        tempRotation = new Vector3[furniture.Length];
+        //onFurniture = new List<GameObject>();
+        onFurniture = new GameObject[FurnitureInfo.numFurniture];
+        //tempFurniture = new List<GameObject>();
+        tempFurniture = new GameObject[FurnitureInfo.numFurniture];
+        mintrans = new Vector3[FurnitureInfo.numFurniture];
+        minrotation = new Vector3[FurnitureInfo.numFurniture];
+        beforeTrans = new Vector3[FurnitureInfo.numFurniture];
+        beforeRotation = new Vector3[FurnitureInfo.numFurniture];
+        tempTrans = new Vector3[FurnitureInfo.numFurniture];
+        tempRotation = new Vector3[FurnitureInfo.numFurniture];
 
         mincost = 9999;
         floorFixing = 0;
+
+        door = (GameObject)Resources.Load(FurnitureInfo.doorPath);
+        window = (GameObject)Resources.Load(FurnitureInfo.windowPath);
+
+        twall = (Texture)Resources.Load(FurnitureInfo.twallPath);
+        tfloor = (Texture)Resources.Load(FurnitureInfo.tfloorPath);
+
     }
  
 	void Update () {
+        //if (Input.GetKeyDown(KeyCode.Space))
+        //{
+        //    Debug.Log(Application.dataPath + FurnitureInfo.furniturePath[1]);
+        //}
+
         position = Input.mousePosition;
         position.z = mainCamera.GetComponent<Transform>().position.y;
         screenToWorldPointPosition = mainCamera.ScreenToWorldPoint(position);
@@ -1797,7 +1994,7 @@ public class FloorPlan : MonoBehaviour {
         {
             createFloor();
         }
-
+        
         //PointLightを配置
         if (guiSceneScript.lightFlag)
         {
@@ -1886,13 +2083,13 @@ public class FloorPlan : MonoBehaviour {
             //    }
             //}
 
-            int loopCount = 5000;
+            int loopCount = 7000;
             //int loopCount = 1;
             for (int i = 0; i < loopCount; i++)
             {
                 MetropolisHastings_v3();
 
-                for(int j = 0; j < furniture.Length; j++)
+                for(int j = 0; j < FurnitureInfo.numFurniture; j++)
                 {
                     onFurniture[j].transform.position = new Vector3(mintrans[j].x, mintrans[j].y, mintrans[j].z);
                     onFurniture[j].transform.eulerAngles = new Vector3(minrotation[j].x, minrotation[j].y, minrotation[j].z);
@@ -1918,7 +2115,7 @@ public class FloorPlan : MonoBehaviour {
         //整列させるよ
         if (guiSceneScript.allign)
         {
-            for (int i = 0; i < furniture.Length; i++)
+            for (int i = 0; i < FurnitureInfo.numFurniture; i++)
             {
                 if (Mathf.Floor((onFurniture[i].transform.eulerAngles.y + 45.0f) / 90.0f) == 0)
                 {
@@ -1939,7 +2136,7 @@ public class FloorPlan : MonoBehaviour {
             }
 
             ////TVを端っこにする
-            //for (int i = 0; i < furniture.Length; i++)
+            //for (int i = 0; i < FurnitureInfo.numFurniture; i++)
             //{
             //    if(onFurniture[i].gameObject.tag == "TV")
             //    {
@@ -1979,7 +2176,7 @@ public class FloorPlan : MonoBehaviour {
             //----------------DiningTableとDiningChairの微調整-----------------------
             int dtable = new int(); ;
             int[] dchair = new int[2] {-1, -1};
-            for (int i = 0; i < furniture.Length; i++)
+            for (int i = 0; i < FurnitureInfo.numFurniture; i++)
             {
                 if(onFurniture[i].gameObject.tag == "DiningChair")
                 {

@@ -70,11 +70,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\FloorPlan\Script\FloorPlan.cs" />
+    <Compile Include="Assets\FloorPlan\Script\FurnitureInfo.cs" />
     <Compile Include="Assets\FloorPlan\Script\SceneViewCamera.cs" />
     <Compile Include="Assets\FloorPlan\Script\guiSceneScript.cs" />
     <Compile Include="Assets\FloorPlan\Script\line.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\FloorPlan\Configuration\initFurniture.txt" />
+    <None Include="Assets\FloorPlan\Configuration\initFurniture_Master.txt" />
     <None Include="Assets\FloorPlan\RoomData - base.txt" />
     <None Include="Assets\FloorPlan\RoomData.txt" />
     <None Include="Assets\Standard Assets\Characters\FirstPersonCharacter\FirstPersonCharacterGuidelines.txt" />
